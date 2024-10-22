@@ -1,0 +1,14 @@
+{
+    "recommendations": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "charliermarsh.ruff",
+        "ms-python.mypy-type-checker",
+        "eamodio.gitlens",
+        "ms-vscode.makefile-tools",
+        "ms-python.isort",
+	"snakemake.snakemake-lang",
+    ]
+}
