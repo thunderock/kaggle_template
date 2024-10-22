@@ -17,6 +17,7 @@ else
 	@echo "Linux"
 	# python3 -m keyring --disable
 endif
+	@poetry config virtualenvs.create true
 	@poetry config virtualenvs.in-project true
 	@poetry install
 	@poetry run poetry run jupyter contrib nbextension install --user
