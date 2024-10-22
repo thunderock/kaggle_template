@@ -10,5 +10,6 @@
         "ms-vscode.makefile-tools",
         "ms-python.isort",
 	"snakemake.snakemake-lang",
+	"tfehlmann.snakefmt"
     ]
 }
