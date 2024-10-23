@@ -63,6 +63,9 @@ codeium-jupyter = "1.1.21"
 traitlets = "5.9.0"
 traittypes = "0.2.1"
 notebook = "6.4.12"
+optuna = "^4.0.0"
+statsmodels = "^0.14.4"
+lightgbm = "^4.5.0"
 
 [build-system]
 requires = ["poetry-core"]
