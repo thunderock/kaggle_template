@@ -1,5 +1,6 @@
 CUR_DIR := ${CURDIR}
 OS := $(shell uname)
+
 .PHONY: clean
 clean:
 	@echo "cleaning up..."
@@ -7,9 +8,13 @@ clean:
 	poetry env remove --all
 	@rm -rf ${CUR_DIR}/.venv
 
+.PHONY: set_pyenv
+set_pyenv:
+	@echo "setting up pyenv..."
+	@pyenv install 3.11 -s
 
 .PHONY: setup
-setup: clean
+setup: clean set_pyenv
 	@echo "setting up..."
 ifeq ($(OS),Darwin)
 	@echo "Mac"
@@ -20,7 +25,7 @@ endif
 	@poetry config virtualenvs.create true
 	@poetry config virtualenvs.in-project true
 	@poetry install
-	@poetry run poetry run jupyter contrib nbextension install --user
+	@poetry run jupyter contrib nbextension install --user
 	@poetry run jupyter nbextension enable --py codeium --user
 	@poetry run jupyter serverextension enable --py codeium --user
 	# @poetry run kaggle competitions download -c pii-detection-removal-from-educational-data -p data/input/
