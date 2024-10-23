@@ -7,6 +7,7 @@ clean:
 	@rm -rf ${CUR_DIR}/data/input
 	poetry env remove --all
 	@rm -rf ${CUR_DIR}/.venv
+	@rm -rf ${CUR_DIR}/.snakemake
 
 .PHONY: set_pyenv
 set_pyenv:
