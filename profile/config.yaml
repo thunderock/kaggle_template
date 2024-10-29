@@ -1,6 +1,6 @@
 snakefile: Snakefile
 cores: 1
-latency-wait: 600
+latency-wait: 60
 show-failed-logs: True
 keep-going: True
 printshellcmds: True
