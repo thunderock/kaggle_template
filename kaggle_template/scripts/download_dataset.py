@@ -7,7 +7,7 @@ import os
 # Check if running within Snakemake
 if "snakemake" in sys.modules:
     COMPETITION_NAME = snakemake.params.competition
-    ZIP_FILE_NAME = snakemake.output[0]
+    ZIP_FILE_NAME = snakemake.output.zip
 else:
     COMPETITION_NAME = "child-mind-institute-problematic-internet-use"
     ZIP_FILE_NAME = f"../data/input/{COMPETITION_NAME}.zip"

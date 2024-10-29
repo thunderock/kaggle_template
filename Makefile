@@ -1,13 +1,18 @@
 CUR_DIR := ${CURDIR}
 OS := $(shell uname)
 
-.PHONY: clean
-clean:
-	@echo "cleaning up..."
+.PHONY: clean_snakemake
+clean_snakemake:
+	@echo "cleaning up snakemake..."
+	@rm -rf ${CUR_DIR}/.snakemake
 	@rm -rf ${CUR_DIR}/data/input
+
+.PHONY: clean
+clean: clean_snakemake
+	@echo "cleaning up..."
+	@rm -rf ${CUR_DIR}/data/features
 	poetry env remove --all
 	@rm -rf ${CUR_DIR}/.venv
-	@rm -rf ${CUR_DIR}/.snakemake
 
 .PHONY: set_pyenv
 set_pyenv:
@@ -29,10 +34,6 @@ endif
 	@poetry run jupyter contrib nbextension install --user
 	@poetry run jupyter nbextension enable --py codeium --user
 	@poetry run jupyter serverextension enable --py codeium --user
-	# @poetry run kaggle competitions download -c pii-detection-removal-from-educational-data -p data/input/
-	# @unzip -o data/input/pii-detection-removal-from-educational-data.zip -d data/input/
-	# @rm data/input/pii-detection-removal-from-educational-data.zip
-	# # poetry run python process_to_quality/generate_features.py
 
 .PHONY: jupyter
 jupyter:
