@@ -5,12 +5,11 @@ OS := $(shell uname)
 clean_snakemake:
 	@echo "cleaning up snakemake..."
 	@rm -rf ${CUR_DIR}/.snakemake
-	@rm -rf ${CUR_DIR}/data/input
+	@rm -rf ${CUR_DIR}/data
 
 .PHONY: clean
 clean: clean_snakemake
 	@echo "cleaning up..."
-	@rm -rf ${CUR_DIR}/data/features
 	poetry env remove --all
 	@rm -rf ${CUR_DIR}/.venv
 

@@ -1,4 +1,5 @@
 # %%
+from numpy import number
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor
 import warnings
@@ -46,7 +47,12 @@ def load_time_series(dirname):
 
 
 train_df = pd.read_csv(TRAIN_INPUT)
-test_df = pd.read_csv(TRAIN_INPUT)
+test_df = pd.read_csv(TEST_INPUT)
+
+print(
+    "columns not in test data: ",
+    [f for f in train_df.columns if f not in test_df.columns],
+)
 
 # %%
 
@@ -92,15 +98,17 @@ test_df[[col for col in CATEGORICAL_FEATURES if col in test_df.columns]] = test_
 train_df[NUMERICAL_FEATURES].isnull().sum().sort_values(ascending=False)
 
 # %%
-from sklearn.impute import KNNImputer
+from sklearn.impute import KNNImputer, SimpleImputer
 
 
 def fill_numerical_features(df):
     for feature in tqdm(NUMERICAL_FEATURES):
         if feature in df.columns and df[feature].isnull().sum() > 0:
-            df[f"{feature}_mean"] = df[feature].fillna(df[feature].mean())
             df["{feature}_median"] = df[feature].fillna(df[feature].median())
             df["{feature}_knn"] = KNNImputer(n_neighbors=5).fit_transform(
+                df[feature].values.reshape(-1, 1)
+            )
+            df[feature] = SimpleImputer(strategy="mean").fit_transform(
                 df[feature].values.reshape(-1, 1)
             )
     return df
@@ -143,7 +151,7 @@ scaler = StandardScaler()
 numerical_base_features = [
     f
     for f in tqdm(
-        [f"{feature}_mean" for feature in BASE_FEATURES]
+        [feature for feature in BASE_FEATURES]
         + [f"{feature}_median" for feature in BASE_FEATURES]
         + [f"{feature}_knn" for feature in BASE_FEATURES]
     )
@@ -153,6 +161,11 @@ train_df[numerical_base_features] = scaler.fit_transform(
     train_df[numerical_base_features]
 )
 test_df[numerical_base_features] = scaler.transform(test_df[numerical_base_features])
+categorical_base_features = [f for f in CATEGORICAL_FEATURES if f in test_df.columns]
+train_df = train_df[
+    numerical_base_features + categorical_base_features + ["id"] + ["sii"]
+]
+test_df = test_df[numerical_base_features + categorical_base_features + ["id"]]
 train_df.to_csv(TRAIN_OUTPUT, index=False)
 test_df.to_csv(TEST_OUTPUT, index=False)
 
