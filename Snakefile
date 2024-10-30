@@ -3,6 +3,7 @@ COMPETITION = "child-mind-institute-problematic-internet-use"
 rule all:
     input:
         "data/features/train_features.csv"
+
 rule download_data:
     output:
         zip="data/input/{competition}.zip".format(competition=COMPETITION),
@@ -22,3 +23,4 @@ rule generate_features:
         test="data/features/test_features.csv"
     threads: 1
     script: "kaggle_template/scripts/scaled.py"
+
