@@ -24,3 +24,9 @@ rule generate_features:
     threads: 1
     script: "kaggle_template/scripts/scaled.py"
 
+rule generate_dag:
+    output:
+        "dag.pdf"
+    threads: 1
+    shell:
+        "snakemake --dag | dot -Tpdf > dag.pdf"
