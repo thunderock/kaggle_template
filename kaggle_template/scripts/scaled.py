@@ -5,7 +5,8 @@ import warnings
 from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
-from numpy import number
+from sklearn.impute import KNNImputer, SimpleImputer
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 from tqdm import tqdm
 
 warnings.filterwarnings("ignore")
@@ -99,7 +100,6 @@ test_df[[col for col in CATEGORICAL_FEATURES if col in test_df.columns]] = test_
 train_df[NUMERICAL_FEATURES].isnull().sum().sort_values(ascending=False)
 
 # %%
-from sklearn.impute import KNNImputer, SimpleImputer
 
 
 def fill_numerical_features(df):
@@ -120,7 +120,6 @@ test_df = fill_numerical_features(test_df)
 print(train_df.isnull().sum(), test_df.isnull().sum())
 
 # %%
-from sklearn.preprocessing import LabelEncoder
 
 # train_df.to_csv("../data/input/train_original_imputed.csv", index=False)
 # test_df.to_csv("../data/input/test_original_imputed.csv", index=False)
@@ -146,7 +145,6 @@ for feature in CATEGORICAL_FEATURES:
 
 
 # %%
-from sklearn.preprocessing import StandardScaler
 
 scaler = StandardScaler()
 numerical_base_features = [

@@ -1,7 +1,6 @@
 import os
 import sys
 import zipfile
-from os.path import join as j
 
 import kaggle
 

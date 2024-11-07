@@ -5,6 +5,7 @@ import warnings
 from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
 warnings.filterwarnings("ignore")
@@ -67,7 +68,6 @@ print(train_parquet.isna().sum().sum(), test_parquet.isna().sum().sum())
 print(train_parquet.dtypes.value_counts(), test_parquet.dtypes.value_counts())
 
 # %%
-from sklearn.preprocessing import StandardScaler
 
 scaler = StandardScaler()
 train_parquet.loc[:, train_parquet.columns != "id"] = scaler.fit_transform(
