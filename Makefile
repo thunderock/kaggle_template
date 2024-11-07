@@ -47,3 +47,6 @@ format:
 	# add isort
 	@poetry run isort .
 	@poetry run black .
+
+.PHONY: cs
+cs: clean_snakemake
