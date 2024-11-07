@@ -2,13 +2,27 @@ COMPETITION = "child-mind-institute-problematic-internet-use"
 
 rule all:
     input:
-        "data/features/train_features.csv"
+        "data/features/train_features.csv",
+        "dag.pdf",
+        "data/features/train_timeseries.csv",
+
+rule generate_timeseries:
+    input:
+        train=directory("data/input/series_train.parquet"),
+        test=directory("data/input/series_test.parquet")
+    output:
+        train="data/features/train_timeseries.csv",
+        test="data/features/test_timeseries.csv",
+    threads: 12
+    script: "kaggle_template/scripts/timeseries.py"
 
 rule download_data:
     output:
         zip="data/input/{competition}.zip".format(competition=COMPETITION),
         train="data/input/train.csv",
-        test="data/input/test.csv"
+        test="data/input/test.csv",
+        timeseries_train=directory("data/input/series_train.parquet"),
+        timeseries_test=directory("data/input/series_test.parquet")
     params:
         competition=COMPETITION
     threads: 1

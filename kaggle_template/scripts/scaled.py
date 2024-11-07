@@ -179,3 +179,6 @@ print(
     "Numerical features not in test data: ",
     [f for f in NUMERICAL_FEATURES if f not in test_df.columns],
 )
+
+print("final categorical features: ", categorical_base_features)
+print("final numerical features: ", numerical_base_features)

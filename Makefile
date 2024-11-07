@@ -6,6 +6,7 @@ clean_snakemake:
 	@echo "cleaning up snakemake..."
 	@rm -rf ${CUR_DIR}/.snakemake
 	@rm -rf ${CUR_DIR}/data
+	@rm -rf ${CUR_DIR}/dag.pdf
 
 .PHONY: clean
 clean: clean_snakemake
