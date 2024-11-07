@@ -39,3 +39,11 @@ endif
 jupyter:
 	@echo "starting jupyter..."
 	@poetry run jupyter notebook --no-browser
+
+.PHONY: format
+format:
+	@echo "formatting..."
+	@poetry install
+	# add isort
+	@poetry run isort .
+	@poetry run black .

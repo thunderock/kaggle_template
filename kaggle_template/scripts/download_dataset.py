@@ -1,8 +1,9 @@
-import kaggle
+import os
+import sys
 import zipfile
 from os.path import join as j
-import sys
-import os
+
+import kaggle
 
 # Check if running within Snakemake
 if "snakemake" in sys.modules:

@@ -1,10 +1,11 @@
 # %%
-import pandas as pd
-from concurrent.futures import ThreadPoolExecutor
-import warnings
 import os
-from tqdm import tqdm
 import sys
+import warnings
+from concurrent.futures import ThreadPoolExecutor
+
+import pandas as pd
+from tqdm import tqdm
 
 warnings.filterwarnings("ignore")
 
