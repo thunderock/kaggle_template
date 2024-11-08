@@ -23,32 +23,7 @@ else:
     TEST_OUTPUT = "data/features/test_encoded.csv"
 
 
-# %%
-def process_file(filename, dirname):
-    data = pd.read_parquet(os.path.join(dirname, filename, "part-0.parquet"))
-    data.drop("step", axis=1, inplace=True)
-    return data.describe().values.reshape(-1), filename.split("=")[1]
-
-
-def load_time_series(dirname):
-    ids = os.listdir(dirname)
-    with ThreadPoolExecutor() as executor:
-        results = list(
-            tqdm(
-                executor.map(lambda fname: process_file(fname, dirname), ids),
-                total=len(ids),
-            )
-        )
-    stats, indexes = zip(*results)
-    data = pd.DataFrame(stats, columns=[f"stat_{i}" for i in range(len(stats[0]))])
-    data["id"] = indexes
-    return data
-
-
-# %%
-
-
-train_df = pd.read_csv(TRAIN_INPUT)
+train_df = pd.read_csv(TRAIN_INPUT).dropna(subset=["sii"])
 test_df = pd.read_csv(TEST_INPUT)
 
 print(
@@ -80,8 +55,11 @@ train_df.dtypes.groupby(train_df[BASE_FEATURES].dtypes).size()
 test_df.dtypes.groupby(test_df[BASE_FEATURES].dtypes).size()
 
 # %%
-CATEGORICAL_FEATURES = train_df.select_dtypes(include="object").columns
-NUMERICAL_FEATURES = train_df.select_dtypes(exclude="object").columns
+ID = "id"
+TARGET = "sii"
+CATEGORICAL_FEATURES = train_df.select_dtypes(include="object").columns.drop([ID])
+print(train_df.select_dtypes(exclude="object").columns.drop([TARGET]))
+NUMERICAL_FEATURES = train_df.select_dtypes(exclude="object").columns.drop([TARGET])
 RANDOM_STATE = 42
 CATEGORICAL_FEATURES, NUMERICAL_FEATURES
 
@@ -117,6 +95,7 @@ def fill_numerical_features(df):
 
 train_df = fill_numerical_features(train_df)
 test_df = fill_numerical_features(test_df)
+
 print(train_df.isnull().sum(), test_df.isnull().sum())
 
 # %%
@@ -142,6 +121,9 @@ def encode_categorical_features(feature, df, tdf):
 
 for feature in CATEGORICAL_FEATURES:
     train_df, test_df = encode_categorical_features(feature, train_df, test_df)
+
+# encoding sii
+train_df[TARGET] = train_df[TARGET].astype(int)
 
 
 # %%

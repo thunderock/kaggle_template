@@ -2,9 +2,20 @@ COMPETITION = "child-mind-institute-problematic-internet-use"
 
 rule all:
     input:
-        "data/features/train_features.csv",
         "dag.pdf",
-        "data/features/train_timeseries.csv",
+        "data/features/train_wide.csv",
+
+rule combine_features:
+    input:
+        train_features="data/features/train_features.csv",
+        test_features="data/features/test_features.csv",
+        train_timeseries="data/features/train_timeseries.csv",
+        test_timeseries="data/features/test_timeseries.csv"
+    output:
+        train_wide_df="data/features/train_wide.csv",
+        test_wide_df="data/features/test_wide.csv"
+    threads: 1
+    script: "kaggle_template/scripts/combine_features.py"
 
 rule generate_timeseries:
     input:
