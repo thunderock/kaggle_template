@@ -1,8 +1,6 @@
 # %%
-import os
 import sys
 import warnings
-from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 from sklearn.impute import KNNImputer, SimpleImputer
@@ -83,8 +81,8 @@ train_df[NUMERICAL_FEATURES].isnull().sum().sort_values(ascending=False)
 def fill_numerical_features(df):
     for feature in tqdm(NUMERICAL_FEATURES):
         if feature in df.columns and df[feature].isnull().sum() > 0:
-            df["{feature}_median"] = df[feature].fillna(df[feature].median())
-            df["{feature}_knn"] = KNNImputer(n_neighbors=5).fit_transform(
+            df[f"{feature}_median"] = df[feature].fillna(df[feature].median())
+            df[f"{feature}_knn"] = KNNImputer(n_neighbors=5).fit_transform(
                 df[feature].values.reshape(-1, 1)
             )
             df[feature] = SimpleImputer(strategy="mean").fit_transform(
@@ -131,13 +129,12 @@ train_df[TARGET] = train_df[TARGET].astype(int)
 scaler = StandardScaler()
 numerical_base_features = [
     f
-    for f in tqdm(
-        [feature for feature in BASE_FEATURES]
-        + [f"{feature}_median" for feature in BASE_FEATURES]
-        + [f"{feature}_knn" for feature in BASE_FEATURES]
-    )
-    if f in test_df.columns
+    for f in test_df.columns
+    if f in NUMERICAL_FEATURES
+    or f[:-7] in NUMERICAL_FEATURES
+    or f[:-4] in NUMERICAL_FEATURES
 ]
+print(NUMERICAL_FEATURES, test_df.columns, numerical_base_features)
 train_df[numerical_base_features] = scaler.fit_transform(
     train_df[numerical_base_features]
 )

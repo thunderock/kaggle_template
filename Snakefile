@@ -1,9 +1,11 @@
+from kaggle_template.utils.run_utils import GPU_CORES, CPU_CORES
+print(GPU_CORES, CPU_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
 
 rule all:
     input:
         "dag.pdf",
-        "data/features/train_wide.csv",
+        "data/models/rf_wide.pkl",
 
 rule combine_features:
     input:
@@ -16,6 +18,8 @@ rule combine_features:
         test_wide_df="data/features/test_wide.csv"
     threads: 1
     script: "kaggle_template/scripts/combine_features.py"
+    # shell:
+    #     "CUDA_VISIBLE_DEVICES=0,2 python kaggle_template/scripts/combine_features.py"
 
 rule generate_timeseries:
     input:
@@ -26,6 +30,8 @@ rule generate_timeseries:
         test="data/features/test_timeseries.csv",
     threads: 12
     script: "kaggle_template/scripts/timeseries.py"
+    # shell:
+    #     "CUDA_VISIBLE_DEVICES=0,2 python kaggle_template/scripts/timeseries.py"
 
 rule download_data:
     output:
@@ -38,6 +44,8 @@ rule download_data:
         competition=COMPETITION
     threads: 1
     script: "kaggle_template/scripts/download_dataset.py"
+    #  shell:
+    #      "CUDA_VISIBLE_DEVICES=0,2 python kaggle_template/scripts/download_dataset.py"
 
 rule generate_features:
     input:
@@ -48,6 +56,22 @@ rule generate_features:
         test="data/features/test_features.csv"
     threads: 1
     script: "kaggle_template/scripts/scaled.py"
+    #  shell:
+    #      "CUDA_VISIBLE_DEVICES=0,2 python kaggle_template/scripts/scaled.py"
+
+rule tune_model:
+    input:
+        train="data/features/train_wide.csv",
+    output:
+        catboost="data/models/catboost_wide.pkl",
+        xgb="data/models/xgb_wide.pkl",
+        rf="data/models/rf_wide.pkl",
+    threads: lambda wildcards: len(CPU_CORES)
+    params:
+        trails=2
+    script: "kaggle_template/scripts/tune_wide_model.py"
+
+
 
 rule generate_dag:
     output:
