@@ -4,7 +4,6 @@ COMPETITION = "child-mind-institute-problematic-internet-use"
 
 rule all:
     input:
-        "dag.pdf",
         "data/models/rf_wide.pkl",
 
 rule combine_features:
@@ -73,9 +72,9 @@ rule tune_model:
 
 
 
-rule generate_dag:
-    output:
-        "dag.pdf"
-    threads: 1
-    shell:
-        "snakemake --dag | dot -Tpdf > dag.pdf"
+# rule generate_dag:
+#     output:
+#         "dag.pdf"
+#     threads: 1
+#     shell:
+#         "snakemake --dag | dot -Tpdf > dag.pdf"

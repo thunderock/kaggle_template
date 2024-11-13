@@ -50,3 +50,8 @@ format:
 
 .PHONY: cs
 cs: clean_snakemake
+
+.PHONY: snakemake
+snakemake: clean_snakemake
+	@echo "running snakemake..."
+	@poetry run snakemake --cores all
