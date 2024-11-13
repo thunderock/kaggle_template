@@ -77,6 +77,7 @@ def catboost_objective(trial):
         cv=kf,
         scoring=make_scorer(custom_cohen_kappa_scorer, greater_is_better=True),
         n_jobs=-1,
+        verbose=2,
     )
     return score.mean()
 
@@ -147,6 +148,7 @@ def xgb_objective(trial):
         cv=kf,
         scoring=make_scorer(custom_cohen_kappa_scorer, greater_is_better=True),
         n_jobs=-1,
+        verbose=2,
     )
     return score.mean()
 
@@ -182,6 +184,7 @@ def rf_objective(trial):
         cv=kf,
         scoring=make_scorer(custom_cohen_kappa_scorer, greater_is_better=True),
         n_jobs=-1,
+        verbose=2,
     )
     return score.mean()
 

@@ -1,11 +1,12 @@
 from kaggle_template.utils.run_utils import GPU_CORES, CPU_CORES
 print(GPU_CORES, CPU_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
+train_files = ["train_features", "train_wide"]
+
 
 rule all:
     input:
-        "data/models/rf_wide.pkl",
-
+        expand("data/models/rf_{train_file}.pkl", train_file=train_files)
 rule combine_features:
     input:
         train_features="data/features/train_features.csv",
@@ -60,17 +61,15 @@ rule generate_features:
 
 rule tune_model:
     input:
-        train="data/features/train_wide.csv",
+        train="data/features/{train_file}.csv"
     output:
-        catboost="data/models/catboost_wide.pkl",
-        xgb="data/models/xgb_wide.pkl",
-        rf="data/models/rf_wide.pkl",
+        catboost="data/models/catboost_{train_file}.pkl",
+        xgb="data/models/xgb_{train_file}.pkl",
+        rf="data/models/rf_{train_file}.pkl"
     threads: lambda wildcards: len(CPU_CORES)
     params:
-        trails=2
+        trails=4
     script: "kaggle_template/scripts/tune_wide_model.py"
-
-
 
 # rule generate_dag:
 #     output:
