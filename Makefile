@@ -52,6 +52,8 @@ format:
 cs: clean_snakemake
 
 .PHONY: snakemake
-snakemake: clean_snakemake
+snakemake: clean
+	# call setup
+	@make setup
 	@echo "running snakemake..."
 	@poetry run snakemake --cores all

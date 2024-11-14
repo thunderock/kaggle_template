@@ -65,10 +65,11 @@ rule tune_model:
     output:
         catboost="data/models/catboost_{train_file}.pkl",
         xgb="data/models/xgb_{train_file}.pkl",
-        rf="data/models/rf_{train_file}.pkl"
-    threads: lambda wildcards: len(CPU_CORES)
+        rf="data/models/rf_{train_file}.pkl",
+        lgbm="data/models/lgbm_{train_file}.pkl"
+    # threads: lambda wildcards: len(CPU_CORES)
     params:
-        trails=4
+        trails=2
     script: "kaggle_template/scripts/tune_wide_model.py"
 
 # rule generate_dag:
