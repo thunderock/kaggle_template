@@ -197,6 +197,7 @@ def lgbm_objective(trial):
         "lambda_l2": trial.suggest_float("lambda_l2", 0.0, 1.0),
         "random_state": SEED,
         "verbosity": -1,
+        "n_jobs": -1,
     }
 
     model = LGBMRegressor(**params)
@@ -225,6 +226,7 @@ print("Best params for LGBM:", study.best_params)
 params = study.best_params
 params["random_state"] = SEED
 params["verbosity"] = -1
+params["n_jobs"] = -1
 model = LGBMRegressor(**params)
 model.fit(X, y)
 model.booster_.save_model(LGBM_MODEL)
