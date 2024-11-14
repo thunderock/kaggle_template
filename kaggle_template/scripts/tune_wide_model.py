@@ -1,8 +1,8 @@
 # %%
+import pickle
 import sys
 from uuid import uuid4
 
-import _pickle as cPickle
 import numpy as np
 import optuna
 import pandas as pd
@@ -85,21 +85,23 @@ def catboost_objective(trial):
     return score.mean()
 
 
-gaussian_sampler = optuna.samplers.TPESampler(multivariate=True)
+sampler = optuna.samplers.TPESampler(multivariate=True)
 study = optuna.create_study(
-    direction="maximize", sampler=gaussian_sampler, study_name=f"CatBoost_{uuid4()}"
+    direction="maximize", sampler=sampler, study_name=f"CatBoost_{uuid4()}"
 )
 study.optimize(catboost_objective, n_trials=TRAILS)
 
-print("Best params for CatBoost:", study.best_params)
-
-# train and save model
 params = study.best_params
 params["random_seed"] = SEED
 params["verbose"] = False
-model = CatBoostRegressor(**params)
-model.fit(X, y)
-model.save_model(CATBOOST_MODEL)
+print("Best params for CatBoost:", params)
+
+# train and save model
+# model = CatBoostRegressor(**params)
+# model.fit(X, y)
+# model.save_model(CATBOOST_MODEL)
+with open(CATBOOST_MODEL, "wb") as f:
+    pickle.dump(params, f)
 
 
 # %%
@@ -130,17 +132,20 @@ def xgb_objective(trial):
 
 
 study = optuna.create_study(
-    direction="maximize", sampler=gaussian_sampler, study_name=f"XGB_{uuid4()}"
+    direction="maximize", sampler=sampler, study_name=f"XGB_{uuid4()}"
 )
 study.optimize(xgb_objective, n_trials=TRAILS)
-print("Best params for XGB:", study.best_params)
 
 # train and save model
 params = study.best_params
 params["random_state"] = SEED
-model = XGBRegressor(**params)
-model.fit(X, y)
-model.save_model(XGB_MODEL)
+print("Best params for XGB:", params)
+# model = XGBRegressor(**params)
+# model.fit(X, y)
+# model.save_model(XGB_MODEL)
+#
+with open(XGB_MODEL, "wb") as f:
+    pickle.dump(params, f)
 
 
 # %%
@@ -168,20 +173,24 @@ def rf_objective(trial):
 
 
 study = optuna.create_study(
-    direction="maximize", sampler=gaussian_sampler, study_name=f"RF_{uuid4()}"
+    direction="maximize", sampler=sampler, study_name=f"RF_{uuid4()}"
 )
 study.optimize(rf_objective, n_trials=TRAILS)
-print("Best params for RF:", study.best_params)
 
-# train and save model
 params = study.best_params
 params["random_state"] = SEED
-model = RandomForestRegressor(**params)
-model.fit(X, y)
+
+print("Best params for RF:", params)
+
+# train and save model
+# model = RandomForestRegressor(**params)
+# model.fit(X, y)
+#
+# with open(RF_MODEL, "wb") as f:
+#     cPickle.dump(model, f)
 
 with open(RF_MODEL, "wb") as f:
-    cPickle.dump(model, f)
-
+    pickle.dump(params, f)
 # %%
 
 
@@ -217,16 +226,19 @@ def lgbm_objective(trial):
 
 
 study = optuna.create_study(
-    direction="maximize", sampler=gaussian_sampler, study_name=f"LGBM_{uuid4()}"
+    direction="maximize", sampler=sampler, study_name=f"LGBM_{uuid4()}"
 )
 study.optimize(lgbm_objective, n_trials=TRAILS)
-print("Best params for LGBM:", study.best_params)
 
 # %%
 params = study.best_params
 params["random_state"] = SEED
 params["verbosity"] = -1
 params["n_jobs"] = -1
-model = LGBMRegressor(**params)
-model.fit(X, y)
-model.booster_.save_model(LGBM_MODEL)
+print("Best params for LGBM:", study.best_params)
+# model = LGBMRegressor(**params)
+# model.fit(X, y)
+# model.booster_.save_model(LGBM_MODEL)
+
+with open(LGBM_MODEL, "wb") as f:
+    pickle.dump(params, f)
