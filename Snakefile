@@ -69,7 +69,7 @@ rule tune_model:
         lgbm="data/models/lgbm_{train_file}.pkl"
     # threads: lambda wildcards: len(CPU_CORES)
     params:
-        trails=2
+        trails=100
     script: "kaggle_template/scripts/tune_wide_model.py"
 
 # rule generate_dag:
