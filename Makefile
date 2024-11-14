@@ -20,7 +20,7 @@ set_pyenv:
 	@pyenv install 3.11 -s
 
 .PHONY: setup
-setup: clean set_pyenv
+setup: set_pyenv
 	@echo "setting up..."
 ifeq ($(OS),Darwin)
 	@echo "Mac"
@@ -52,8 +52,8 @@ format:
 cs: clean_snakemake
 
 .PHONY: snakemake
-snakemake: clean
+snakemake: clean_snakemake
 	# call setup
 	@make setup
 	@echo "running snakemake..."
-	@poetry run snakemake --cores all
+	@poetry run snakemake --cores all --touch
