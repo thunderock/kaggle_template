@@ -72,25 +72,25 @@ rule tune_model:
         trails=100
     script: "kaggle_template/scripts/tune_wide_model.py"
 
-rule tune_stack_regression_and_predict:
-    input:
-        train_wide="data/features/train_wide.csv",
-        train="data/features/train_features.csv",
-        test="data/features/test_features.csv",
-        test_wide="data/features/test_wide.csv",
-        catboost_wide="data/models/catboost_train_wide.pkl",
-        xgb_wide="data/models/xgb_train_wide.pkl",
-        rf_wide="data/models/rf_train_wide.pkl",
-        lgbm_wide="data/models/lgbm_train_wide.pkl",
-        catboost="data/models/catboost_train_features.pkl",
-        xgb="data/models/xgb_train_features.pkl",
-        rf="data/models/rf_train_features.pkl",
-        lgbm="data/models/lgbm_train_features.pkl",
-    params:
-        trails=100
-    output:
-        submission="data/submissions/submission.csv"
-    script: "kaggle_template/scripts/tune_stack_regression_and_predict.py"
+# rule tune_stack_regression_and_predict:
+#     input:
+#         train_wide="data/features/train_wide.csv",
+#         train="data/features/train_features.csv",
+#         test="data/features/test_features.csv",
+#         test_wide="data/features/test_wide.csv",
+#         catboost_wide="data/models/catboost_train_wide.pkl",
+#         xgb_wide="data/models/xgb_train_wide.pkl",
+#         rf_wide="data/models/rf_train_wide.pkl",
+#         lgbm_wide="data/models/lgbm_train_wide.pkl",
+#         catboost="data/models/catboost_train_features.pkl",
+#         xgb="data/models/xgb_train_features.pkl",
+#         rf="data/models/rf_train_features.pkl",
+#         lgbm="data/models/lgbm_train_features.pkl",
+#     params:
+#         trails=100
+#     output:
+#         submission="data/submissions/submission.csv"
+#     script: "kaggle_template/scripts/tune_stack_regression_and_predict.py"
 
 
 # rule generate_dag:
