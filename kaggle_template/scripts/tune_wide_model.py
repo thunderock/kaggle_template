@@ -22,6 +22,7 @@ XGB_MODEL = "data/models/xgb_model.pkl"
 RF_MODEL = "data/models/rf_model.pkl"
 LGBM_MODEL = "data/models/lgbm_model.pkl"
 TRAILS = 2
+THREADS = 4
 if "snakemake" in sys.modules:
     TRAIN_DF = snakemake.input.train
     CATBOOST_MODEL = snakemake.output.catboost
@@ -29,6 +30,7 @@ if "snakemake" in sys.modules:
     RF_MODEL = snakemake.output.rf
     LGBM_MODEL = snakemake.output.lgbm
     TRAILS = snakemake.params.trails
+    THREADS = snakemake.threads
 
 SEED = 42
 df = pd.read_csv(TRAIN_DF)
@@ -79,7 +81,7 @@ def catboost_objective(trial):
         y,
         cv=kf,
         scoring=make_scorer(custom_cohen_kappa_scorer, greater_is_better=True),
-        n_jobs=-1,
+        n_jobs=THREADS,
         verbose=2,
     )
     return score.mean()
@@ -87,9 +89,13 @@ def catboost_objective(trial):
 
 sampler = optuna.samplers.TPESampler(multivariate=True)
 study = optuna.create_study(
-    direction="maximize", sampler=sampler, study_name=f"CatBoost_{uuid4()}"
+    direction="maximize",
+    sampler=sampler,
+    study_name=f"CatBoost_{uuid4()}",
 )
-study.optimize(catboost_objective, n_trials=TRAILS)
+study.optimize(
+    catboost_objective, n_trials=TRAILS, show_progress_bar=True, n_jobs=THREADS
+)
 
 params = study.best_params
 params["random_seed"] = SEED
@@ -125,7 +131,7 @@ def xgb_objective(trial):
         y,
         cv=kf,
         scoring=make_scorer(custom_cohen_kappa_scorer, greater_is_better=True),
-        n_jobs=-1,
+        n_jobs=THREADS,
         verbose=2,
     )
     return score.mean()
@@ -134,7 +140,7 @@ def xgb_objective(trial):
 study = optuna.create_study(
     direction="maximize", sampler=sampler, study_name=f"XGB_{uuid4()}"
 )
-study.optimize(xgb_objective, n_trials=TRAILS)
+study.optimize(xgb_objective, n_trials=TRAILS, show_progress_bar=True, n_jobs=THREADS)
 
 # train and save model
 params = study.best_params
@@ -166,7 +172,7 @@ def rf_objective(trial):
         y,
         cv=kf,
         scoring=make_scorer(custom_cohen_kappa_scorer, greater_is_better=True),
-        n_jobs=-1,
+        n_jobs=THREADS,
         verbose=2,
     )
     return score.mean()
@@ -175,7 +181,7 @@ def rf_objective(trial):
 study = optuna.create_study(
     direction="maximize", sampler=sampler, study_name=f"RF_{uuid4()}"
 )
-study.optimize(rf_objective, n_trials=TRAILS)
+study.optimize(rf_objective, n_trials=TRAILS, show_progress_bar=True, n_jobs=THREADS)
 
 params = study.best_params
 params["random_state"] = SEED
@@ -206,7 +212,6 @@ def lgbm_objective(trial):
         "lambda_l2": trial.suggest_float("lambda_l2", 0.0, 1.0),
         "random_state": SEED,
         "verbosity": -1,
-        "n_jobs": -1,
     }
 
     model = LGBMRegressor(**params)
@@ -219,22 +224,24 @@ def lgbm_objective(trial):
         y,
         cv=kf,
         scoring=make_scorer(custom_cohen_kappa_scorer, greater_is_better=True),
-        n_jobs=-1,
+        n_jobs=THREADS,
         verbose=2,
     )
     return score.mean()
 
 
 study = optuna.create_study(
-    direction="maximize", sampler=sampler, study_name=f"LGBM_{uuid4()}"
+    direction="maximize",
+    sampler=sampler,
+    study_name=f"LGBM_{uuid4()}",
 )
-study.optimize(lgbm_objective, n_trials=TRAILS)
+study.optimize(lgbm_objective, n_trials=TRAILS, show_progress_bar=True, n_jobs=THREADS)
 
 # %%
 params = study.best_params
 params["random_state"] = SEED
 params["verbosity"] = -1
-params["n_jobs"] = -1
+# params["n_jobs"] = THREADS
 print("Best params for LGBM:", study.best_params)
 # model = LGBMRegressor(**params)
 # model.fit(X, y)

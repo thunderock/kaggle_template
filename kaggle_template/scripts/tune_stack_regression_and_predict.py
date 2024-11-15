@@ -50,15 +50,27 @@ SEED = 42
 df = pd.read_csv(TRAIN_DF)
 wide_df = pd.read_csv(TRAIN_WIDE_DF)
 
-X, y = df.drop(columns=["sii", "id"]), df["sii"]
-# test_df = pd.read_csv(TEST_LONG_DF)
-df.head()
+X, y = df.drop(columns=["sii"]), df["sii"]
+X_wide, y_wide = wide_df.drop(columns=["sii"]), wide_df["sii"]
+ids, wide_ids = set(df["id"]), set(wide_df["id"])
+
 
 # %%
-df[list(set(df.columns) - set(["sii", "id"]))].dtypes.value_counts(dropna=False)
+def get_dictionary(file_name):
+    with open(file_name, "rb") as f:
+        return pickle.load(f)
 
-# %%
-df.sii.value_counts()
+
+base_models = [
+    ("catboost", CatBoostRegressor(**get_dictionary(CATBOOST_MODEL))),
+    ("xgb", XGBRegressor(**get_dictionary(XGB_MODEL))),
+    ("rf", RandomForestRegressor(**get_dictionary(RF_MODEL))),
+    ("lgbm", LGBMRegressor(**get_dictionary(LGBM_MODEL))),
+    ("catboost_wide", CatBoostRegressor(**get_dictionary(CATBOOST_WIDE_MODEL))),
+    ("xgb_wide", XGBRegressor(**get_dictionary(XGB_WIDE_MODEL))),
+    ("rf_wide", RandomForestRegressor(**get_dictionary(RF_WIDE_MODEL))),
+    ("lgbm_wide", LGBMRegressor(**get_dictionary(LGBM_WIDE_MODEL))),
+]
 
 
 # %%
@@ -78,28 +90,50 @@ def custom_cohen_kappa_scorer(y_true, y_pred):
     return cohen_kappa_score(y_true, y_pred_classes, weights="quadratic")
 
 
-def catboost_objective(trial):
-    params = {
-        "iterations": trial.suggest_int("iterations", 10, 1000),
-        "depth": trial.suggest_int("depth", 4, 10),
-        "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
-        "random_seed": SEED,
-        "verbose": False,
-    }
+def objective(trial):
+    alpha = trial.suggest_float("alpha", 1e-4, 10, log=True)
+    wide_alpha = trial.suggest_float("wide_alpha", 1e-4, 10, log=True)
+    wide_weight = trial.suggest_float("wide_weight", 0, 1)
+    weight = 1.0 - wide_weight
 
-    model = CatBoostRegressor(**params)
-
+    score = []
     kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED)
+    for train_idx, test_idx in kf.split(X, y):
+        train_ids, val_ids = set(X["id"].iloc[train_idx]), set(X["id"].iloc[test_idx])
+        train_df = X.iloc[train_idx].drop(columns=["id"])  # all ids
+        train_wide_df = X_wide[X_wide["id"].isin(train_ids)].drop(columns=["id"])
+        y_train = y.iloc[train_idx]
+        y_train_wide = y_wide[X_wide["id"].isin(train_ids)]
 
-    score = cross_val_score(
-        model,
-        X,
-        y,
-        cv=kf,
-        scoring=make_scorer(custom_cohen_kappa_scorer, greater_is_better=True),
-        n_jobs=-1,
-        verbose=2,
-    )
+        ### validation data
+        # validation only with ids that are not wide
+        idxs = X[~X["id"].isin(wide_ids)].index
+        val_df = X.iloc[test_idx & idxs].drop(columns=["id"])
+        y_val = y.iloc[test_idx & idxs]
+        # validation qith ids that are not wide but are in the train set
+        idxs = X[X["id"].isin(wide_ids)].index
+        val_weight_df = X.iloc[test_idx & idxs].drop(columns=["id"])
+        y_val_weight = y.iloc[test_idx & idxs]
+        # validation with wide ids
+        idxs = X_wide.index
+        val_wide_df = X_wide.iloc[idxs].drop(columns=["id"])
+        y_val_wide = y_wide.iloc[idxs]
+
+        meta_model = Ridge(alpha=alpha)
+        wide_meta_model = Ridge(alpha=wide_alpha)
+
+        meta_model.fit(train_df, y_train)
+        wide_meta_model.fit(train_wide_df, y_train_wide)
+
+        meta_preds = meta_model.predict(val_df)
+        weight_meta_preds = meta_model.predict(val_weight_df)
+        wide_meta_preds = wide_meta_model.predict(val_wide_df)
+
+        scores = custom_cohen_kappa_scorer(y_val, meta_preds)
+        weight_scores = custom_cohen_kappa_scorer(y_val_weight, weight_meta_preds)
+        wide_scores = custom_cohen_kappa_scorer(y_val_wide, wide_meta_preds)
+        score.append
+
     return score.mean()
 
 

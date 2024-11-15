@@ -67,7 +67,7 @@ rule tune_model:
         xgb="data/models/xgb_{train_file}.pkl",
         rf="data/models/rf_{train_file}.pkl",
         lgbm="data/models/lgbm_{train_file}.pkl",
-    # threads: lambda wildcards: len(CPU_CORES)
+    threads: lambda wildcards: len(CPU_CORES) // 2
     params:
         trails=100
     script: "kaggle_template/scripts/tune_wide_model.py"
