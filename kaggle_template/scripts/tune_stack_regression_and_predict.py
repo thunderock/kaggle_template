@@ -115,9 +115,8 @@ def objective(trial):
         val_weight_df = X.iloc[test_idx & idxs].drop(columns=["id"])
         y_val_weight = y.iloc[test_idx & idxs]
         # validation with wide ids
-        idxs = X_wide.index
-        val_wide_df = X_wide.iloc[idxs].drop(columns=["id"])
-        y_val_wide = y_wide.iloc[idxs]
+        val_wide_df = X_wide[X_wide["id"].isin(val_ids)].drop(columns=["id"])
+        y_val_wide = y_wide[X_wide["id"].isin(val_ids)]
 
         meta_model = Ridge(alpha=alpha)
         wide_meta_model = Ridge(alpha=wide_alpha)
