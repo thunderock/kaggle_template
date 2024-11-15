@@ -56,4 +56,4 @@ snakemake: clean_snakemake
 	# call setup
 	@make setup
 	@echo "running snakemake..."
-	@poetry run snakemake --cores all --touch
+	@poetry run snakemake all --cores all --nolock --ignore-incomplete
