@@ -14,16 +14,6 @@ from sklearn.model_selection import StratifiedKFold
 
 TRAIN_DF = "data/features/train_features.csv"
 TRAIN_WIDE_DF = "data/features/train_wide.csv"
-# TEST_DF = "data/features/test_features.csv"
-# TEST_WIDE_DF = "data/features/test_wide.csv"
-# CATBOOST_MODEL = "data/models/catboost_train_features.pkl"
-# XGB_MODEL = "data/models/xgb_train_features.pkl"
-# RF_MODEL = "data/models/rf_train_features.pkl"
-# LGBM_MODEL = "data/models/lgbm_train_features.pkl"
-# CATBOOST_WIDE_MODEL = "data/models/catboost_train_wide.pkl"
-# XGB_WIDE_MODEL = "data/models/xgb_train_wide.pkl"
-# RF_WIDE_MODEL = "data/models/rf_train_wide.pkl"
-# LGBM_WIDE_MODEL = "data/models/lgbm_train_wide.pkl"
 META_MODEL = "data/models/meta_model.pkl"
 TRAILS = 2
 SEED = 42
@@ -31,16 +21,6 @@ THREADS = 2
 if "snakemake" in sys.modules:
     TRAIN_DF = snakemake.input.train
     TRAIN_WIDE_DF = snakemake.input.train_wide
-    # CATBOOST = snakemake.output.catboost
-    # XGB = snakemake.output.xgb
-    # RF = snakemake.output.rf
-    # LGBM = snakemake.output.lgbm
-    # TEST_DF = snakemake.input.test
-    # CATBOOST_WIDE = snakemake.output.catboost_wide
-    # XGB_WIDE = snakemake.output.xgb_wide
-    # RF_WIDE = snakemake.output.rf_wide
-    # LGBM_WIDE = snakemake.output.lgbm_wide
-    # TEST_WIDE_DF = snakemake.input.test_wide
     TRAILS = snakemake.params.trails
     META_MODEL = snakemake.output.meta_model
     SEED = snakemake.params.seed

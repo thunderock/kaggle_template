@@ -6,7 +6,9 @@ train_files = ["train_features", "train_wide"]
 
 rule all:
     input:
-        expand("data/models/rf_{train_file}.pkl", train_file=train_files)
+        expand("data/models/rf_{train_file}.pkl", train_file=train_files),
+        'data/models/meta_model.pkl',
+
 rule combine_features:
     input:
         train_features="data/features/train_features.csv",
