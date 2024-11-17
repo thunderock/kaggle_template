@@ -23,6 +23,7 @@ RF_MODEL = "data/models/rf_model.pkl"
 LGBM_MODEL = "data/models/lgbm_model.pkl"
 TRAILS = 2
 THREADS = 4
+SEED = 42
 if "snakemake" in sys.modules:
     TRAIN_DF = snakemake.input.train
     CATBOOST_MODEL = snakemake.output.catboost
@@ -31,8 +32,8 @@ if "snakemake" in sys.modules:
     LGBM_MODEL = snakemake.output.lgbm
     TRAILS = snakemake.params.trails
     THREADS = snakemake.threads
+    SEED = snakemake.params.seed
 
-SEED = 42
 df = pd.read_csv(TRAIN_DF)
 X, y = df.drop(columns=["sii", "id"]), df["sii"]
 # test_df = pd.read_csv(TEST_LONG_DF)

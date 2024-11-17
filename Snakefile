@@ -69,9 +69,21 @@ rule tune_model:
         lgbm="data/models/lgbm_{train_file}.pkl",
     threads: lambda wildcards: len(CPU_CORES) // 2
     params:
-        trails=100
+        trails=100,
+        seed=42
     script: "kaggle_template/scripts/tune_wide_model.py"
 
+rule tune_meta_model:
+    input:
+        train="data/features/train_wide.csv",
+        train_wide="data/features/train_wide.csv",
+    output:
+        meta_model="data/models/meta_model.pkl",
+    threads: lambda wildcards: len(CPU_CORES) // 2
+    params:
+        trails=100,
+        seed=42
+    script: "kaggle_template/scripts/tune_meta_model.py"
 # rule tune_stack_regression_and_predict:
 #     input:
 #         train_wide="data/features/train_wide.csv",
