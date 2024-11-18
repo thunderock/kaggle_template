@@ -13,7 +13,8 @@ models = {
 rule all:
     input:
         expand("data/models/{model}_{train_file}.pkl", model=models.keys(), train_file=train_files),
-        "data/models/meta_model.pkl"
+        "data/models/meta_model.pkl",
+        "dag.pdf"
 
 rule combine_features:
     input:
@@ -112,10 +113,10 @@ rule tune_meta_model:
 #     script: "kaggle_template/scripts/tune_stack_regression_and_predict.py"
 
 
-# rule generate_dag:
-#     output:
-#         "dag.pdf"
-#     threads: 1
-#     shell:
-#         "snakemake --dag | dot -Tpdf > dag.pdf"
+rule generate_dag:
+    output:
+        "dag.pdf"
+    threads: 1
+    shell:
+        "snakemake --dag | sed '1d' | dot -Tpdf > dag.pdf; snakemake --filegraph | sed '1d' | dot -Tpdf > dag_filegraph.pdf"
 
