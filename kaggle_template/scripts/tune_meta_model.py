@@ -133,6 +133,9 @@ def objective(trial):
             .drop(columns="id")
             .reset_index(drop=True)
         )
+        assert (
+            val_wide_df_from_narrow_ == val_wide_df_
+        ), f"{val_wide_df_from_narrow_} != {val_wide_df_}"
 
         meta_model = Ridge(alpha=alpha)
         wide_meta_model = Ridge(alpha=wide_alpha)
@@ -145,15 +148,13 @@ def objective(trial):
         wide_meta_preds = wide_meta_model.predict(val_wide_df_)
 
         narrow_score = custom_cohen_kappa_scorer(val_y_, meta_preds)
-        wide_score_from_narrow = custom_cohen_kappa_scorer(
-            val_wide_y_from_narrow_, weight_meta_preds
+        wide_score = custom_cohen_kappa_scorer(
+            val_wide_y_from_narrow_,
+            (wide_weight * wide_meta_preds + (1 - wide_weight) * weight_meta_preds),
         )
-        wide_score = custom_cohen_kappa_scorer(val_wide_y_, wide_meta_preds)
         wide_valid_ratio = len(val_wide_ids) / len(val_ids)
-        f_score = (
-            wide_valid_ratio
-            * (wide_score * wide_weight + wide_score_from_narrow * (1 - wide_weight))
-            + (1 - wide_valid_ratio) * narrow_score
+        f_score = (wide_valid_ratio * wide_score) + (
+            (1 - wide_valid_ratio) * narrow_score
         )
         score.append(f_score)
 
