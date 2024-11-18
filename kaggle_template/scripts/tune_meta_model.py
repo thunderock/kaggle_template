@@ -1,6 +1,7 @@
 # %%
 import pickle
 import sys
+from os.path import abspath, dirname
 
 import numpy as np
 import optuna
@@ -166,7 +167,11 @@ study = optuna.create_study(
     direction="maximize", sampler=sampler, study_name="meta_model"
 )
 study.optimize(objective, n_trials=TRAILS, show_progress_bar=True, n_jobs=THREADS)
-
+save_directory = dirname(abspath(META_MODEL))
+parallel_coords_file = f"{save_directory}/meta_model_parallel_coords.png"
+fig = optuna.visualization.plot_parallel_coordinate(study)
+fig.update_layout(width=1200, height=800, title_text="meta_model")
+fig.write_image(parallel_coords_file)
 params = study.best_params
 print("Best params for meta model:", params)
 write_dictionary(META_MODEL, params)

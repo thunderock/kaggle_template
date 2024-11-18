@@ -1,6 +1,7 @@
 import pickle
 import sys
 from abc import ABC, abstractmethod
+from os.path import abspath, dirname
 
 import numpy as np
 import optuna
@@ -90,7 +91,7 @@ class ModelTrainer(ABC):
         )
         return score.mean()
 
-    def optimize(self, n_trials):
+    def optimize(self, n_trials, save_parallel_coords_file=None):
         sampler = optuna.samplers.TPESampler(multivariate=True)
         study = optuna.create_study(
             direction="maximize", sampler=sampler, study_name=SELECTED_MODEL
@@ -105,6 +106,10 @@ class ModelTrainer(ABC):
         # Get the best parameters and update with fixed params
         best_params = study.best_params
         best_params.update(self.get_fixed_params())
+        if save_parallel_coords_file:
+            fig = optuna.visualization.plot_parallel_coordinate(study)
+            fig.update_layout(width=1200, height=800, title_text=SELECTED_MODEL)
+            fig.write_image(save_parallel_coords_file)
         return best_params
 
 
@@ -192,7 +197,12 @@ def get_trainer(name):
 
 
 trainer = get_trainer(SELECTED_MODEL)
-best_params = trainer.optimize(n_trials=TRIALS)
+save_directory = dirname(abspath(OUTPUT_PATH))
+file_name = OUTPUT_PATH.split("/")[-1]
+parallel_coords_file = f"{save_directory}/parallel_coords_{file_name}.png"
+best_params = trainer.optimize(
+    n_trials=TRIALS, save_parallel_coords_file=parallel_coords_file
+)
 
 print(f"Best params for {SELECTED_MODEL}:", best_params)
 
