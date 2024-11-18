@@ -134,8 +134,8 @@ def objective(trial):
             .reset_index(drop=True)
         )
         assert (
-            val_wide_df_from_narrow_ == val_wide_df_
-        ), f"{val_wide_df_from_narrow_} != {val_wide_df_}"
+            val_wide_y_from_narrow_.values == val_wide_y_.values
+        ).all(), f"{val_wide_df_from_narrow_} != {val_wide_df_}"
 
         meta_model = Ridge(alpha=alpha)
         wide_meta_model = Ridge(alpha=wide_alpha)
