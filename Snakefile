@@ -1,5 +1,6 @@
 from kaggle_template.utils.run_utils import GPU_CORES, CPU_CORES
-print(GPU_CORES, CPU_CORES)
+NUM_CORES = workflow.cores
+print(GPU_CORES, CPU_CORES, NUM_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
 train_files = ["train_features", "train_wide_features"]
 models = {
@@ -78,7 +79,7 @@ rule tune_model:
         trials=100,
         seed=42,
         model="{model}",
-    threads: len(CPU_CORES) // 2
+    threads: NUM_CORES // 2
     script: "kaggle_template/scripts/tune_model.py"
 
 rule tune_meta_model:
@@ -90,7 +91,7 @@ rule tune_meta_model:
     params:
         trials=100,
         seed=42,
-    threads: len(CPU_CORES) // 2
+    threads: NUM_CORES // 2
     script: "kaggle_template/scripts/tune_meta_model.py"
 # rule tune_stack_regression_and_predict:
 #     input:
