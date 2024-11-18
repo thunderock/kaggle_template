@@ -13,7 +13,7 @@ from sklearn.model_selection import StratifiedKFold
 # %%
 
 TRAIN_DF = "data/features/train_features.csv"
-TRAIN_WIDE_DF = "data/features/train_wide.csv"
+TRAIN_WIDE_DF = "data/features/train_wide_features.csv"
 META_MODEL = "data/models/meta_model.pkl"
 TRAILS = 2
 SEED = 42
@@ -21,9 +21,10 @@ THREADS = -1
 if "snakemake" in sys.modules:
     TRAIN_DF = snakemake.input.train
     TRAIN_WIDE_DF = snakemake.input.train_wide
-    TRAILS = snakemake.params.trails
+    TRAILS = snakemake.params.trials
     META_MODEL = snakemake.output.meta_model
     SEED = snakemake.params.seed
+    THREADS = snakemake.threads
 
 train_df = pd.read_csv(TRAIN_DF).set_index("id", drop=False)
 train_wide_df = pd.read_csv(TRAIN_WIDE_DF).set_index("id", drop=False)

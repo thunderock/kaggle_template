@@ -1,7 +1,7 @@
 from kaggle_template.utils.run_utils import GPU_CORES, CPU_CORES
 print(GPU_CORES, CPU_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
-train_files = ["train_features", "train_wide"]
+train_files = ["train_features", "train_wide_features"]
 models = {
     "catboost": "data/models/catboost_{train_file}.pkl",
     "xgb": "data/models/xgb_{train_file}.pkl",
@@ -22,8 +22,8 @@ rule combine_features:
         train_timeseries="data/features/train_timeseries.csv",
         test_timeseries="data/features/test_timeseries.csv",
     output:
-        train_wide_df="data/features/train_wide.csv",
-        test_wide_df="data/features/test_wide.csv",
+        train_wide_df="data/features/train_wide_features.csv",
+        test_wide_df="data/features/test_wide_features.csv",
     threads: 1
     script: "kaggle_template/scripts/combine_features.py"
     # shell:
@@ -70,24 +70,26 @@ rule generate_features:
 
 rule tune_model:
     input:
-        train=expand("data/features/{train_file}.csv", train_file=train_files),
+        train="data/features/train_{train_file}.csv",
     output:
-        model_path=expand("data/models/{model}_{train_file}.pkl", model=models.keys(), train_file=train_files),
+        output_path="data/models/{model}_{train_file}.pkl"
     params:
         trials=100,
         seed=42,
-        model=expand("{model}", model=models.keys()),
+        model="{model}",
+    threads: len(CPU_CORES) // 2
     script: "kaggle_template/scripts/tune_model.py"
 
 rule tune_meta_model:
     input:
-        train="data/features/train_wide.csv",
-        train_wide="data/features/train_wide.csv",
+        train="data/features/train_features.csv",
+        train_wide="data/features/train_wide_features.csv",
     output:
         meta_model="data/models/meta_model.pkl",
     params:
-        trails=100,
+        trials=100,
         seed=42,
+    threads: len(CPU_CORES) // 2
     script: "kaggle_template/scripts/tune_meta_model.py"
 # rule tune_stack_regression_and_predict:
 #     input:
@@ -116,3 +118,4 @@ rule tune_meta_model:
 #     threads: 1
 #     shell:
 #         "snakemake --dag | dot -Tpdf > dag.pdf"
+

@@ -1,4 +1,3 @@
-import os
 import pickle
 import sys
 from abc import ABC, abstractmethod
@@ -15,7 +14,7 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 from xgboost import XGBRegressor
 
 # Common configurations
-TRAIN_DF = "data/features/train_wide.csv"
+TRAIN_DF = "data/features/train_wide_features.csv"
 THREADS = -1
 TRIALS = 20
 SEED = 42
@@ -26,7 +25,15 @@ if "snakemake" in sys.modules:
     TRIALS = snakemake.params.trials
     SEED = snakemake.params.seed
     SELECTED_MODEL = snakemake.params.model
-    OUTPUT_PATH = snakemake.output.model_path
+    OUTPUT_PATH = snakemake.output.output_path
+    THREADS = snakemake.threads
+print("debugging: ")
+print("TRAIN_DF: ", TRAIN_DF)
+print("TRIALS: ", TRIALS)
+print("SEED: ", SEED)
+print("SELECTED_MODEL: ", SELECTED_MODEL)
+print("OUTPUT_PATH: ", OUTPUT_PATH)
+
 
 df = pd.read_csv(TRAIN_DF)
 X, y = df.drop(columns=["sii", "id"]), df["sii"]
@@ -154,14 +161,14 @@ class LGBMTrainer(ModelTrainer):
 
     def suggest_params(self, trial):
         return {
-            "max_depth": trial.suggest_int("max_depth", 8, 17),
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
-            "n_leaves": trial.suggest_int("n_leaves", 10, 1000),
-            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 50),
+            "max_depth": trial.suggest_int("max_depth", 8, 18),
+            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.1, log=True),
+            "num_leaves": trial.suggest_int("num_leaves", 10, 600),
+            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 20),
             "bagging_fraction": trial.suggest_float("bagging_fraction", 0.5, 1.0),
             "bagging_freq": trial.suggest_int("bagging_freq", 1, 10),
             "lambda_l1": trial.suggest_float("lambda_l1", 0, 10),
-            "lambda_l2": trial.suggest_float("lambda_l2", 0.0, 1.0),
+            "lambda_l2": trial.suggest_float("lambda_l2", 0.0, 0.5),
         }
 
     def get_fixed_params(self):
@@ -171,20 +178,20 @@ class LGBMTrainer(ModelTrainer):
 # Usage
 trainers = {
     "catboost": CatBoostTrainer(X, y),
-    "xgboost": XGBTrainer(X, y),
-    "random_forest": RandomForestTrainer(X, y),
+    "xgb": XGBTrainer(X, y),
+    "rf": RandomForestTrainer(X, y),
     "lgbm": LGBMTrainer(X, y),
 }
 
 
 def get_trainer(name):
     for key, trainer in trainers.items():
-        if name == key or name == f"{key}_wide":
+        if name == f"{key}_train" or name == f"{key}_train_wide":
             return trainer
     raise ValueError(f"Trainer {name} not found")
 
 
-trainer = trainers[SELECTED_MODEL]
+trainer = get_trainer(SELECTED_MODEL)
 best_params = trainer.optimize(n_trials=TRIALS)
 
 print(f"Best params for {SELECTED_MODEL}:", best_params)
