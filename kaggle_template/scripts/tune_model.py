@@ -119,9 +119,10 @@ class CatBoostTrainer(ModelTrainer):
 
     def suggest_params(self, trial):
         return {
-            "iterations": trial.suggest_int("iterations", 10, 1000),
+            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.1, log=True),
             "depth": trial.suggest_int("depth", 4, 10),
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
+            "iterations": trial.suggest_int("iterations", 100, 500),
+            "l2_leaf_reg": trial.suggest_int("l2_leaf_reg", 5, 15),
         }
 
     def get_fixed_params(self):
@@ -134,9 +135,14 @@ class XGBTrainer(ModelTrainer):
 
     def suggest_params(self, trial):
         return {
-            "n_estimators": trial.suggest_int("n_estimators", 10, 1000),
-            "max_depth": trial.suggest_int("max_depth", 4, 10),
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
+            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.1, log=True),
+            "max_depth": trial.suggest_int("max_depth", 5, 12),
+            "n_estimators": trial.suggest_int("n_estimators", 100, 800),
+            "subsample": trial.suggest_float("subsample", 0.5, 1.0),
+            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
+            "gamma": trial.suggest_int("gamma", 0, 5),
+            "reg_alpha": trial.suggest_int("reg_alpha", 0, 5),
+            "reg_lambda": trial.suggest_int("reg_lambda", 0, 5),
         }
 
     def get_fixed_params(self):
