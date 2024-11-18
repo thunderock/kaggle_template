@@ -163,3 +163,4 @@ cython_debug/
 data/
 .snakemake/
 catboost_info/*
+core.*

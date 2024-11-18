@@ -13,6 +13,7 @@ clean: clean_snakemake
 	@echo "cleaning up..."
 	poetry env remove --all
 	@rm -rf ${CUR_DIR}/.venv
+	@rm -rf ${CUR_DIR}/core.*
 
 .PHONY: set_pyenv
 set_pyenv:
