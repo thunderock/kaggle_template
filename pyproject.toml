@@ -66,7 +66,7 @@ notebook = "6.4.12"
 optuna = "^4.0.0"
 statsmodels = "^0.14.4"
 lightgbm = "^4.5.0"
-kaleido = "0.1"
+kaleido = "0.1.0"
 
 [build-system]
 requires = ["poetry-core"]

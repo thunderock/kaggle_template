@@ -1,5 +1,6 @@
 CUR_DIR := ${CURDIR}
 OS := $(shell uname)
+CORES ?= all
 
 .PHONY: clean_snakemake
 clean_snakemake:
@@ -54,7 +55,6 @@ cs: clean_snakemake
 
 .PHONY: snakemake
 snakemake: clean_snakemake
-	# call setup
 	@make setup
-	@echo "running snakemake..."
-	@poetry run snakemake all --cores all --nolock --ignore-incomplete
+	@echo "running snakemake with $(CORES) cores..."
+	@poetry run snakemake all --cores $(CORES) --nolock --ignore-incomplete
