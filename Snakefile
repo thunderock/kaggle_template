@@ -112,7 +112,7 @@ rule submission:
         seed=42,
     output:
         analyze="data/output/analyze.csv",
-        submission="data/output/submission.csv",
+        predictions="data/output/submission.csv",
     script: "kaggle_template/scripts/submission.py"
 
 
