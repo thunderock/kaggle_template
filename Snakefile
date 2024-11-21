@@ -4,7 +4,7 @@ NUM_CORES = workflow.cores
 print(GPU_CORES, CPU_CORES, NUM_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
 train_files = ["train_features", "train_wide_features"]
-base_data_path = config.get("base_data_path", "temp")
+base_data_path = config.get("base_data_path", "data")
 base_script_path = config.get("base_script_path", "kaggle_template/scripts")
 models = {
     "catboost": j(base_data_path, "models/catboost_{train_file}.pkl",),
@@ -82,7 +82,7 @@ rule tune_model:
     output:
         output_path=j(base_data_path, "models/{model}_{train_file}.pkl"),
     params:
-        trials=2,
+        trials=100,
         seed=42,
         model="{model}",
     threads: NUM_CORES // 2
@@ -95,7 +95,7 @@ rule tune_meta_model:
     output:
         meta_model=j(base_data_path, "models/meta_model.pkl"),
     params:
-        trials=2,
+        trials=100,
         seed=42,
     threads: NUM_CORES // 2
     script: j(base_script_path, "tune_meta_model.py")

@@ -54,7 +54,7 @@ if "snakemake" in sys.modules:
     PREDICTIONS_TO_SUBMIT = snakemake.output.predictions
     RANDOM_STATE = snakemake.params.seed
 
-KFOLD = 2
+KFOLD = 10
 
 
 print("DEBUG LOGGING: ")
