@@ -32,8 +32,8 @@ TRAIN_CSV = "data/features/train_features.csv"
 TRAIN_WIDE_CSV = "data/features/train_wide_features.csv"
 TEST_CSV = "data/features/test_features.csv"
 TEST_WIDE_CSV = "data/features/test_wide_features.csv"
-PREDICTIONS_TO_ANALYZE = "data/predictions/predictions_to_analyze.csv"
-PREDICTIONS_TO_SUBMIT = "data/predictions/predictions_to_submit.csv"
+PREDICTIONS_TO_ANALYZE = "predictions_to_analyze.csv"
+PREDICTIONS_TO_SUBMIT = "predictions_to_submit.csv"
 RANDOM_STATE = 42
 
 if "snakemake" in sys.modules:
@@ -54,7 +54,7 @@ if "snakemake" in sys.modules:
     PREDICTIONS_TO_SUBMIT = snakemake.output.predictions
     RANDOM_STATE = snakemake.params.seed
 
-KFOLD = 10
+KFOLD = 2
 
 
 print("DEBUG LOGGING: ")
@@ -275,9 +275,7 @@ for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
     # fill values for predictions to analyze
 
     y_pred = y_pred.set_index("id")
-    predictions_to_analyze[f"pred_{idx}"] = predictions_to_analyze[
-        f"pred_{idx}"
-    ].update(y_pred["class"])
+    predictions_to_analyze[f"pred_{idx}"].update(y_pred["class"])
     # final predictions
     test_predictions = generate_test_predictions(
         narrow_df=pd.DataFrame(
@@ -301,10 +299,9 @@ for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
     predictions_to_submit[f"pred_{idx}"] = test_predictions["class"].values
 
 # predictions to analyse df, id with 10 columns
-predictions_to_analyze = pd.DataFrame(predictions_to_analyze)
 predictions_to_analyze.reset_index().to_csv(PREDICTIONS_TO_ANALYZE, index=False)
 predictions_to_submit["sii"] = (
-    predictions_to_submit[[f"pred_{i}" for i in range(KFOLD)]].mean().astype(int)
+    predictions_to_submit[[f"pred_{i}" for i in range(KFOLD)]].mean(axis=1).astype(int)
 )
 predictions_to_submit[["id", "sii"]].to_csv(PREDICTIONS_TO_SUBMIT, index=False)
 
