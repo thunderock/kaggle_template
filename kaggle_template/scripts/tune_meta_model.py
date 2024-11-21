@@ -143,10 +143,12 @@ def objective(trial):
 
         meta_model.fit(train_df_, train_y_)
         wide_meta_model.fit(train_wide_df_, train_wide_y_)
+        narrow_cols = train_df_.columns
+        wide_cols = train_wide_df_.columns
 
-        meta_preds = meta_model.predict(val_df_)
-        weight_meta_preds = meta_model.predict(val_wide_df_from_narrow_)
-        wide_meta_preds = wide_meta_model.predict(val_wide_df_)
+        meta_preds = meta_model.predict(val_df_[narrow_cols])
+        weight_meta_preds = meta_model.predict(val_wide_df_from_narrow_[narrow_cols])
+        wide_meta_preds = wide_meta_model.predict(val_wide_df_[wide_cols])
 
         narrow_score = custom_cohen_kappa_scorer(val_y_, meta_preds)
         wide_score = custom_cohen_kappa_scorer(
