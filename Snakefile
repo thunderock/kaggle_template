@@ -4,7 +4,7 @@ NUM_CORES = workflow.cores
 print(GPU_CORES, CPU_CORES, NUM_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
 train_files = ["train_features", "train_wide_features"]
-base_data_path = config.get("base_data_path", "data")
+base_data_path = config.get("base_data_path", "temp")
 base_script_path = config.get("base_script_path", "kaggle_template/scripts")
 models = {
     "catboost": j(base_data_path, "models/catboost_{train_file}.pkl",),
@@ -21,7 +21,7 @@ rule all:
             train_file=train_files,
         ),
         j(base_data_path, "dag.pdf",),
-        j(base_data_path, "output/submission.csv"),
+        "submission.csv",
 
 rule combine_features:
     input:
@@ -51,7 +51,7 @@ rule generate_timeseries:
 
 rule download_data:
     output:
-        zip=j(base_data_path, "input/{competition}.zip"),
+        zip=j(base_data_path, "input/{competition}.zip".format(competition=COMPETITION)),
         train=j(base_data_path, "input/train.csv"),
         test=j(base_data_path, "input/test.csv"),
         timeseries_train=directory(j(base_data_path, "input/series_train.parquet")),
@@ -82,7 +82,7 @@ rule tune_model:
     output:
         output_path=j(base_data_path, "models/{model}_{train_file}.pkl"),
     params:
-        trials=100,
+        trials=2,
         seed=42,
         model="{model}",
     threads: NUM_CORES // 2
@@ -95,7 +95,7 @@ rule tune_meta_model:
     output:
         meta_model=j(base_data_path, "models/meta_model.pkl"),
     params:
-        trials=100,
+        trials=2,
         seed=42,
     threads: NUM_CORES // 2
     script: j(base_script_path, "tune_meta_model.py")
@@ -125,9 +125,9 @@ rule submission:
 
 rule generate_dag:
     output:
-        j(base_data_path, "dag.pdf"),
-        j(base_data_path, "dag_filegraph.pdf"),
+        dag=j(base_data_path, "dag.pdf"),
+        dag_filegraph=j(base_data_path, "dag_filegraph.pdf"),
     threads: 1
     shell:
-        "snakemake --dag | sed '1d' | dot -Tpdf > dag.pdf; snakemake --filegraph | sed '1d' | dot -Tpdf > dag_filegraph.pdf"
+        "snakemake --dag | sed '1d' | dot -Tpdf > {output.dag}; snakemake --filegraph | sed '1d' | dot -Tpdf > {output.dag_filegraph}"
 

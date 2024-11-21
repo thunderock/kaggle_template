@@ -1,6 +1,8 @@
 CUR_DIR := ${CURDIR}
 OS := $(shell uname)
 CORES ?= all
+DATA_PATH ?= data
+SCRIPT_PATH ?= kaggle_template/scripts
 
 .PHONY: clean_snakemake
 clean_snakemake:
@@ -53,8 +55,9 @@ format:
 .PHONY: cs
 cs: clean_snakemake
 
+# to run this on kaggle, run: make snakemake DATA_PATH=/kaggle/input SCRIPT_PATH=scripts
 .PHONY: snakemake
 snakemake: clean_snakemake
 	@make setup
 	@echo "running snakemake with $(CORES) cores..."
-	@poetry run snakemake all --cores $(CORES) --nolock --ignore-incomplete
+	@poetry run snakemake all --cores $(CORES) --config base_data_path=$(DATA_PATH) base_script_path=$(SCRIPT_PATH) --nolock --ignore-incomplete
