@@ -94,7 +94,7 @@ def objective(trial):
         # wide data to train
         train_wide_df_ = (
             train_wide_df[train_wide_df.index.isin(train_ids)]
-            .drop(columns="id")
+            .drop(columns=["id", "sii"])
             .reset_index(drop=True)
         )
         train_wide_y_ = train_wide_df[train_wide_df.index.isin(train_ids)][

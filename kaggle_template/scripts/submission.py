@@ -1,5 +1,3 @@
-from operator import index
-import os
 import pickle
 import sys
 
@@ -11,9 +9,9 @@ from scipy.optimize import minimize
 from sklearn.ensemble import RandomForestRegressor, StackingRegressor
 from sklearn.linear_model import Ridge
 from sklearn.metrics import cohen_kappa_score
-from sklearn.model_selection import StratifiedKFold, cross_val_score
-from xgboost import XGBRegressor
+from sklearn.model_selection import StratifiedKFold
 from tqdm import tqdm
+from xgboost import XGBRegressor
 
 
 def read_dictionary(path):
@@ -21,15 +19,6 @@ def read_dictionary(path):
         return pickle.load(handle)
 
 
-# ['rf_train_features.pkl',
-#  'meta_model.pkl',
-#  'rf_train_wide_features.pkl',
-#  'catboost_train_wide_features.pkl',
-#  'xgb_train_wide_features.pkl',
-#  'catboost_train_features.pkl',
-#  'lgbm_train_wide_features.pkl',
-#  'xgb_train_features.pkl',
-#  'lgbm_train_features.pkl']
 RF_TRAIN_PARAMS = "data/models/rf_train_features.pkl"
 RF_TRAIN_WIDE_PARAMS = "data/models/rf_train_wide_features.pkl"
 CATBOOST_TRAIN_PARAMS = "data/models/catboost_train_features.pkl"
@@ -39,12 +28,33 @@ XGB_TRAIN_WIDE_PARAMS = "data/models/xgb_train_wide_features.pkl"
 LGBM_TRAIN_PARAMS = "data/models/lgbm_train_features.pkl"
 LGBM_TRAIN_WIDE_PARAMS = "data/models/lgbm_train_wide_features.pkl"
 META_MODEL = "data/models/meta_model.pkl"
-RANDOM_STATE = 42
 TRAIN_CSV = "data/features/train_features.csv"
 TRAIN_WIDE_CSV = "data/features/train_wide_features.csv"
 TEST_CSV = "data/features/test_features.csv"
 TEST_WIDE_CSV = "data/features/test_wide_features.csv"
-KFOLD = 2
+PREDICTIONS_TO_ANALYZE = "data/predictions/predictions_to_analyze.csv"
+PREDICTIONS_TO_SUBMIT = "data/predictions/predictions_to_submit.csv"
+RANDOM_STATE = 42
+
+if "snakemake" in sys.modules:
+    RF_TRAIN_PARAMS = snakemake.input.rf
+    RF_TRAIN_WIDE_PARAMS = snakemake.input.rf_wide
+    CATBOOST_TRAIN_PARAMS = snakemake.input.catboost
+    CATBOOST_TRAIN_WIDE_PARAMS = snakemake.input.catboost_wide
+    XGB_TRAIN_PARAMS = snakemake.input.xgb
+    XGB_TRAIN_WIDE_PARAMS = snakemake.input.xgb_wide
+    LGBM_TRAIN_PARAMS = snakemake.input.lgbm
+    LGBM_TRAIN_WIDE_PARAMS = snakemake.input.lgbm_wide
+    META_MODEL = snakemake.input.meta_model
+    TRAIN_CSV = snakemake.input.train
+    TRAIN_WIDE_CSV = snakemake.input.train_wide
+    TEST_CSV = snakemake.input.test
+    TEST_WIDE_CSV = snakemake.input.test_wide
+    PREDICTIONS_TO_ANALYZE = snakemake.output.analyze
+    PREDICTIONS_TO_SUBMIT = snakemake.output.predictions
+    RANDOM_STATE = snakemake.params.seed
+
+KFOLD = 10
 
 
 print("DEBUG LOGGING: ")
@@ -61,15 +71,15 @@ print("META_MODEL: ", read_dictionary(META_MODEL))
 base_models = [
     ("rf", RandomForestRegressor(**read_dictionary(RF_TRAIN_PARAMS))),
     ("catboost", CatBoostRegressor(**read_dictionary(CATBOOST_TRAIN_PARAMS))),
-    # ("xgb", XGBRegressor(**read_dictionary(XGB_TRAIN_PARAMS))),
-    # ("lgbm", LGBMRegressor(**read_dictionary(LGBM_TRAIN_PARAMS))),
+    ("xgb", XGBRegressor(**read_dictionary(XGB_TRAIN_PARAMS))),
+    ("lgbm", LGBMRegressor(**read_dictionary(LGBM_TRAIN_PARAMS))),
 ]
 
 base_wide_models = [
     ("rf", RandomForestRegressor(**read_dictionary(RF_TRAIN_WIDE_PARAMS))),
     ("catboost", CatBoostRegressor(**read_dictionary(CATBOOST_TRAIN_WIDE_PARAMS))),
-    # ("xgb", XGBRegressor(**read_dictionary(XGB_TRAIN_WIDE_PARAMS))),
-    # ("lgbm", LGBMRegressor(**read_dictionary(LGBM_TRAIN_WIDE_PARAMS))),
+    ("xgb", XGBRegressor(**read_dictionary(XGB_TRAIN_WIDE_PARAMS))),
+    ("lgbm", LGBMRegressor(**read_dictionary(LGBM_TRAIN_WIDE_PARAMS))),
 ]
 
 
@@ -120,12 +130,16 @@ train_wide_df.index.name = None
 test_df.index.name = None
 test_wide_df.index.name = None
 
-predictions_to_analyze = {}
-predictions_to_submit = {}
+predictions_to_analyze = pd.DataFrame(
+    {
+        "id": train_df["id"].values,
+        "original": train_df["sii"].values,
+    }
+).set_index("id")
+predictions_to_submit = pd.DataFrame({"id": test_df["id"].values})
 
 model_scores: dict[str : list[float]] = {name: [] for name, _ in base_models}
 wide_model_scores: dict[str : list[float]] = {name: [] for name, _ in base_wide_models}
-stack_regressor_thresholds = []
 X, y = train_df.drop("sii", axis=1), train_df["sii"]
 
 
@@ -134,7 +148,10 @@ def generate_test_predictions(narrow_df, wide_df, wide_score_weight):
     assert all(col in narrow_df.columns for col in ["id", "pred"])
     assert all(col in wide_df.columns for col in ["id", "pred"])
     # Ensure `wide_df` IDs are a subset of `narrow_df` IDs
-    assert set(wide_df["id"]).issubset(set(narrow_df["id"]))
+    assert set(wide_df["id"]).issubset(
+        set(narrow_df["id"])
+    ), f"{set(wide_df['id'])} not subset of {set(narrow_df['id'])}"
+    assert narrow_df.shape[0] >= wide_df.shape[0]
 
     # Create a dictionary for faster lookups of wide predictions
     wide_pred_dict = dict(zip(wide_df["id"], wide_df["pred"]))
@@ -150,7 +167,6 @@ def generate_test_predictions(narrow_df, wide_df, wide_score_weight):
             )
         return narrow_pred_dict[id_]
 
-    # Vectorize the computation
     narrow_df["pred"] = narrow_df.apply(compute_score, axis=1)
     return narrow_df[["id", "pred"]]
 
@@ -167,7 +183,7 @@ for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
     # wide data to train
     train_wide_df_ = (
         train_wide_df[train_wide_df.index.isin(train_ids)]
-        .drop(columns="id")
+        .drop(columns=["id", "sii"])
         .reset_index(drop=True)
     )
     train_wide_y_ = train_wide_df[train_wide_df.index.isin(train_ids)][
@@ -176,15 +192,11 @@ for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
 
     ## VALIDATION DATA
     # narrow data to val
-    val_df_ = X.iloc[test_idx].drop(columns="id").reset_index(drop=True)
+    val_df_ = X.iloc[test_idx].reset_index(drop=True)
     val_y_ = y.iloc[test_idx].reset_index(drop=True)
 
     # wide data to val to be combined with weights
-    val_wide_df_ = (
-        train_wide_df[train_wide_df.index.isin(val_ids)]
-        .sort_values("id")
-        .drop(columns="id")
-    )
+    val_wide_df_ = train_wide_df[train_wide_df.index.isin(val_ids)].sort_values("id")
     val_wide_y_ = (
         train_wide_df[train_wide_df.index.isin(val_ids)]
         .sort_values("id")
@@ -193,10 +205,7 @@ for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
     )
 
     val_wide_df_from_narrow_ = (
-        X[X.index.isin(val_wide_ids)]
-        .sort_values("id")
-        .drop(columns="id")
-        .reset_index(drop=True)
+        X[X.index.isin(val_wide_ids)].sort_values("id").reset_index(drop=True)
     )
     val_wide_y_from_narrow_ = (
         y[y.index.isin(val_wide_ids)]
@@ -209,10 +218,12 @@ for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
     assert (
         val_wide_y_from_narrow_.values == val_wide_y_.values
     ).all(), f"{val_wide_y_from_narrow_} != {val_wide_y_}"
+    narrow_columns = train_df_.columns
+    wide_columns = train_wide_df_.columns
 
     for name, model in base_models:
         model.fit(train_df_, train_y_)
-        y_pred = model.predict(val_df_)
+        y_pred = model.predict(val_df_[narrow_columns])
         score, model_thresholds, pred_classes = custom_cohen_kappa_scorer(
             val_y_, y_pred
         )
@@ -223,9 +234,9 @@ for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
         wide_model.fit(train_wide_df_, train_wide_y_)
         model = get_base_model(name)
         model.fit(train_df_, train_y_)
-        y_pred = wide_model_weight * wide_model.predict(val_wide_df_) + (
+        y_pred = wide_model_weight * wide_model.predict(val_wide_df_[wide_columns]) + (
             1 - wide_model_weight
-        ) * model.predict(val_wide_df_from_narrow_)
+        ) * model.predict(val_wide_df_from_narrow_[narrow_columns])
         score, model_thresholds, pred_classes = custom_cohen_kappa_scorer(
             val_wide_y_from_narrow_, y_pred
         )
@@ -235,76 +246,67 @@ for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
     stacking_model.fit(train_df_, train_y_)
     stacking_wide_model.fit(train_wide_df_, train_wide_y_)
 
-    narrow_columns = train_df_.columns
-    wide_columns = train_wide_df_.columns
     # predictions to see if method works
 
     y_pred = generate_test_predictions(
-        pd.DataFrame(
+        narrow_df=pd.DataFrame(
             {
-                "id": val_df_.index,
+                "id": val_df_["id"],
                 "pred": stacking_model.predict(val_df_[narrow_columns]),
             }
         ),
-        pd.DataFrame(
+        wide_df=pd.DataFrame(
             {
-                "id": val_wide_df_.index,
+                "id": val_wide_df_["id"],
                 "pred": stacking_wide_model.predict(val_wide_df_[wide_columns]),
             }
         ),
-        wide_model_weight,
+        wide_score_weight=wide_model_weight,
     )
     score, model_thresholds, pred_classes = custom_cohen_kappa_scorer(
-        val_wide_y_from_narrow_, y_pred.pred.values
+        val_y_, y_pred.pred.values
     )
     y_pred["class"] = pred_classes
 
     print(f"Stacking Model: Score: {score}")
-    for i in y_pred.id:
-        if i not in predictions_to_analyze:
-            predictions_to_analyze[i] = {}
-        predictions_to_analyze[i][f"pred_{idx}"] = y_pred[y_pred["id"] == i][
-            "class"
-        ].values[0]
+    predictions_to_analyze[f"pred_{idx}"] = pd.Series(
+        [pd.NA] * len(predictions_to_analyze), dtype="Int32"
+    )
+    # fill values for predictions to analyze
+
+    y_pred = y_pred.set_index("id")
+    predictions_to_analyze[f"pred_{idx}"] = predictions_to_analyze[
+        f"pred_{idx}"
+    ].update(y_pred["class"])
     # final predictions
     test_predictions = generate_test_predictions(
-        pd.DataFrame(
+        narrow_df=pd.DataFrame(
             {
                 "id": test_df["id"],
-                "pred": stacking_model.predict(
-                    test_df.drop(columns="id")[narrow_columns]
-                ),
+                "pred": stacking_model.predict(test_df[narrow_columns]),
             }
         ),
-        pd.DataFrame(
+        wide_df=pd.DataFrame(
             {
                 "id": test_wide_df["id"],
-                "pred": stacking_wide_model.predict(
-                    test_wide_df.drop(columns="id")[wide_columns]
-                ),
+                "pred": stacking_wide_model.predict(test_wide_df[wide_columns]),
             }
         ),
-        wide_model_weight,
+        wide_score_weight=wide_model_weight,
     )
     test_predictions["class"] = test_predictions["pred"].apply(
         lambda x: np.digitize(x, model_thresholds)
     )
 
-    for i in test_predictions.id:
-        if i not in predictions_to_submit:
-            predictions_to_submit[i] = {}
-        predictions_to_submit[i][f"pred_{idx}"] = test_predictions[
-            test_predictions["id"] == i
-        ]["class"].values[0]
-
+    predictions_to_submit[f"pred_{idx}"] = test_predictions["class"].values
 
 # predictions to analyse df, id with 10 columns
 predictions_to_analyze = pd.DataFrame(predictions_to_analyze)
-predictions_to_analyze["original"] = train_df.set_index("id").loc[
-    predictions_to_analyze.index, "sii"
-]
-predictions_to_analyze.to_csv(f"predictions_to_analyze_{idx}.csv")
-pd.DataFrame(predictions_to_submit).to_csv(f"predictions_to_submit_{idx}.csv")
+predictions_to_analyze.reset_index().to_csv(PREDICTIONS_TO_ANALYZE, index=False)
+predictions_to_submit["sii"] = (
+    predictions_to_submit[[f"pred_{i}" for i in range(KFOLD)]].mean().astype(int)
+)
+predictions_to_submit[["id", "sii"]].to_csv(PREDICTIONS_TO_SUBMIT, index=False)
 
 print("Model Scores: ", model_scores)
 print("Wide Model Scores: ", wide_model_scores)

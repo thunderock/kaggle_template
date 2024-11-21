@@ -10,12 +10,11 @@ models = {
     "lgbm": "data/models/lgbm_{train_file}.pkl",
 }
 
-
 rule all:
     input:
         expand("data/models/{model}_{train_file}.pkl", model=models.keys(), train_file=train_files),
-        "data/models/meta_model.pkl",
-        "dag.pdf"
+        "dag.pdf",
+        "data/output/submission.csv",
 
 rule combine_features:
     input:
@@ -93,25 +92,28 @@ rule tune_meta_model:
         seed=42,
     threads: NUM_CORES // 2
     script: "kaggle_template/scripts/tune_meta_model.py"
-# rule tune_stack_regression_and_predict:
-#     input:
-#         train_wide="data/features/train_wide.csv",
-#         train="data/features/train_features.csv",
-#         test="data/features/test_features.csv",
-#         test_wide="data/features/test_wide.csv",
-#         catboost_wide="data/models/catboost_train_wide.pkl",
-#         xgb_wide="data/models/xgb_train_wide.pkl",
-#         rf_wide="data/models/rf_train_wide.pkl",
-#         lgbm_wide="data/models/lgbm_train_wide.pkl",
-#         catboost="data/models/catboost_train_features.pkl",
-#         xgb="data/models/xgb_train_features.pkl",
-#         rf="data/models/rf_train_features.pkl",
-#         lgbm="data/models/lgbm_train_features.pkl",
-#     params:
-#         trails=100
-#     output:
-#         submission="data/submissions/submission.csv"
-#     script: "kaggle_template/scripts/tune_stack_regression_and_predict.py"
+
+rule submission:
+    input:
+        train_wide="data/features/train_wide_features.csv",
+        train="data/features/train_features.csv",
+        test="data/features/test_features.csv",
+        test_wide="data/features/test_wide_features.csv",
+        catboost="data/models/catboost_train_features.pkl",
+        catboost_wide="data/models/catboost_train_wide_features.pkl",
+        xgb="data/models/xgb_train_features.pkl",
+        xgb_wide="data/models/xgb_train_wide_features.pkl",
+        rf="data/models/rf_train_features.pkl",
+        rf_wide="data/models/rf_train_wide_features.pkl",
+        lgbm="data/models/lgbm_train_features.pkl",
+        lgbm_wide="data/models/lgbm_train_wide_features.pkl",
+        meta_model="data/models/meta_model.pkl",
+    params:
+        seed=42,
+    output:
+        analyze="data/output/analyze.csv",
+        submission="data/output/submission.csv",
+    script: "kaggle_template/scripts/submission.py"
 
 
 rule generate_dag:
