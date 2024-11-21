@@ -87,7 +87,8 @@ class ModelTrainer(ABC):
             self.y,
             cv=kf,
             scoring=make_scorer(custom_cohen_kappa_scorer, greater_is_better=True),
-            n_jobs=self.threads,
+            # n_jobs=self.threads,
+            n_jobs=1,
         )
         return score.mean()
 
