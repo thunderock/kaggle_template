@@ -52,10 +52,10 @@ rule generate_timeseries:
 
 rule download_data:
     output:
-        train=j(base_input_path, "train.csv"),
-        test=j(base_input_path, "test.csv"),
-        timeseries_train=directory(j(base_input_path, "series_train.parquet")),
-        timeseries_test=directory(j(base_input_path, "series_test.parquet")),
+        train=protected(j(base_input_path, "train.csv")),
+        test=protected(j(base_input_path, "test.csv")),
+        timeseries_train=protected(directory(j(base_input_path, "series_train.parquet"))),
+        timeseries_test=protected(directory(j(base_input_path, "series_test.parquet"))),
     params:
         competition=COMPETITION
     threads: 1
