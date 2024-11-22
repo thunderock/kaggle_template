@@ -65,8 +65,8 @@ rule download_data:
 
 rule generate_features:
     input:
-        train=j(base_data_path, "input/train.csv"),
-        test=j(base_data_path, "input/test.csv"),
+        train=j(base_input_path, "train.csv"),
+        test=j(base_input_path, "test.csv"),
     output:
         train=j(base_data_path, "features/train_features.csv"),
         test=j(base_data_path, "features/test_features.csv"),
