@@ -1,7 +1,8 @@
 CUR_DIR := ${CURDIR}
 OS := $(shell uname)
 CORES ?= all
-DATA_PATH ?= data
+INPUT_PATH ?= data/input
+DATA_PATH ?= data/output
 SCRIPT_PATH ?= kaggle_template/scripts
 
 .PHONY: clean_snakemake
