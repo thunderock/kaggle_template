@@ -61,7 +61,7 @@ cs: clean_snakemake
 snakemake: clean_snakemake
 	@make setup
 	@echo "running snakemake with $(CORES) cores..."
-	@poetry run snakemake all --cores $(CORES) --config base_data_path=$(DATA_PATH) base_script_path=$(SCRIPT_PATH) --nolock --ignore-incomplete
+	@poetry run snakemake all --cores $(CORES) --config base_input_path=$(INPUT_PATH) base_data_path=$(DATA_PATH) base_script_path=$(SCRIPT_PATH) --nolock --ignore-incomplete
 
 .PHONY: snakemake_kaggle
 snakemake_kaggle:

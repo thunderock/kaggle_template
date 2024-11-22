@@ -1,10 +1,11 @@
 from kaggle_template.utils.run_utils import GPU_CORES, CPU_CORES
 from os.path import join as j
+import os
 NUM_CORES = workflow.cores
 print(GPU_CORES, CPU_CORES, NUM_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
 train_files = ["train_features", "train_wide_features"]
-base_input_path = config.get("base_input_path", "data/input")
+base_input_path = config.get("base_input_path", "/kaggle/input/child-mind-institute-problematic-internet-use")
 base_data_path = config.get("base_data_path", "data/output")
 base_script_path = config.get("base_script_path", "kaggle_template/scripts")
 models = {
@@ -50,18 +51,6 @@ rule generate_timeseries:
     # shell:
     #     "CUDA_VISIBLE_DEVICES=0,2 python kaggle_template/scripts/timeseries.py"
 
-rule download_data:
-    output:
-        train=protected(j(base_input_path, "train.csv")),
-        test=protected(j(base_input_path, "test.csv")),
-        timeseries_train=protected(directory(j(base_input_path, "series_train.parquet"))),
-        timeseries_test=protected(directory(j(base_input_path, "series_test.parquet"))),
-    params:
-        competition=COMPETITION
-    threads: 1
-    script: j(base_script_path, "download_dataset.py")
-    #  shell:
-    #      "CUDA_VISIBLE_DEVICES=0,2 python kaggle_template/scripts/download_dataset.py"
 
 rule generate_features:
     input:
@@ -131,3 +120,17 @@ rule generate_dag:
     shell:
         "snakemake --dag | sed '1d' | dot -Tpdf > {output.dag}; snakemake --filegraph | sed '1d' | dot -Tpdf > {output.dag_filegraph}"
 
+
+if os.environ.get('KAGGLE_URL_BASE') is None:
+    rule download_data:
+        output:
+            train=protected(j(base_input_path, "train.csv")),
+            test=protected(j(base_input_path, "test.csv")),
+            timeseries_train=protected(directory(j(base_input_path, "series_train.parquet"))),
+            timeseries_test=protected(directory(j(base_input_path, "series_test.parquet"))),
+        params:
+            competition=COMPETITION
+        threads: 1
+        script: j(base_script_path, "download_dataset.py")
+        #  shell:
+        #      "CUDA_VISIBLE_DEVICES=0,2 python kaggle_template/scripts/download_dataset.py"
