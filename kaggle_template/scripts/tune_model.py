@@ -25,6 +25,7 @@ OUTPUT_PATH = "data/models/catboost_train_features.pkl"
 OUTPUT_WIDE_PATH = "data/models/catboost_train_wide_features.pkl"
 if "snakemake" in sys.modules:
     TRAIN_DF = snakemake.input.train
+    TRAIN_WIDE_DF = snakemake.input.train_wide
     TRIALS = snakemake.params.trials
     SEED = snakemake.params.seed
     SELECTED_MODEL = snakemake.params.model
@@ -186,6 +187,15 @@ class LGBMTrainer(ModelTrainer):
         return {"random_state": self.seed, "verbosity": -1}
 
 
+def get_trainer(name):
+    for key, trainer in trainers.items():
+        if name == key:
+            return trainer
+    raise ValueError(f"Trainer {name} not found")
+
+
+df = pd.read_csv(TRAIN_DF)
+X, y = df.drop(columns=["sii", "id"]), df["sii"]
 # Usage
 trainers = {
     "catboost": CatBoostTrainer(X, y),
@@ -193,17 +203,6 @@ trainers = {
     "rf": RandomForestTrainer(X, y),
     "lgbm": LGBMTrainer(X, y),
 }
-
-
-def get_trainer(name):
-    for key, trainer in trainers.items():
-        if name == f"{key}_train":
-            return trainer
-    raise ValueError(f"Trainer {name} not found")
-
-
-df = pd.read_csv(TRAIN_DF)
-X, y = df.drop(columns=["sii", "id"]), df["sii"]
 
 
 trainer = get_trainer(SELECTED_MODEL)
@@ -223,6 +222,14 @@ with open(OUTPUT_PATH, "wb") as f:
 
 df = pd.read_csv(TRAIN_WIDE_DF)
 X, y = df.drop(columns=["sii", "id"]), df["sii"]
+# Usage
+trainers = {
+    "catboost": CatBoostTrainer(X, y),
+    "xgb": XGBTrainer(X, y),
+    "rf": RandomForestTrainer(X, y),
+    "lgbm": LGBMTrainer(X, y),
+}
+
 
 trainer = get_trainer(SELECTED_MODEL)
 save_directory = dirname(abspath(OUTPUT_WIDE_PATH))

@@ -73,7 +73,7 @@ rule tune_model:
         output_path=j(base_data_path, "models/{model}_train_features.pkl"),
         output_wide_path=j(base_data_path, "models/{model}_train_wide_features.pkl"),
     params:
-        trials=2,
+        trials=100,
         seed=42,
         model="{model}",
     threads: NUM_CORES // 2
@@ -86,7 +86,7 @@ rule tune_meta_model:
     output:
         meta_model=j(base_data_path, "models/meta_model.pkl"),
     params:
-        trials=2,
+        trials=100,
         seed=42,
     threads: NUM_CORES // 2
     script: j(base_script_path, "tune_meta_model.py")
