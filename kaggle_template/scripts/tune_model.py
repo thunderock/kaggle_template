@@ -16,17 +16,20 @@ from xgboost import XGBRegressor
 
 # Common configurations
 TRAIN_DF = "data/features/train_wide_features.csv"
+TRAIN_WIDE_DF = "data/features/train_wide_features.csv"
 THREADS = -1
 TRIALS = 20
 SEED = 42
 SELECTED_MODEL = "catboost"
-OUTPUT_PATH = "data/models/catboost_model.pkl"
+OUTPUT_PATH = "data/models/catboost_train_features.pkl"
+OUTPUT_WIDE_PATH = "data/models/catboost_train_wide_features.pkl"
 if "snakemake" in sys.modules:
     TRAIN_DF = snakemake.input.train
     TRIALS = snakemake.params.trials
     SEED = snakemake.params.seed
     SELECTED_MODEL = snakemake.params.model
     OUTPUT_PATH = snakemake.output.output_path
+    OUTPUT_WIDE_PATH = snakemake.output.output_wide_path
     THREADS = snakemake.threads
 print("debugging: ")
 print("TRAIN_DF: ", TRAIN_DF)
@@ -34,10 +37,6 @@ print("TRIALS: ", TRIALS)
 print("SEED: ", SEED)
 print("SELECTED_MODEL: ", SELECTED_MODEL)
 print("OUTPUT_PATH: ", OUTPUT_PATH)
-
-
-df = pd.read_csv(TRAIN_DF)
-X, y = df.drop(columns=["sii", "id"]), df["sii"]
 
 
 # Common scorer function
@@ -198,9 +197,13 @@ trainers = {
 
 def get_trainer(name):
     for key, trainer in trainers.items():
-        if name == f"{key}_train" or name == f"{key}_train_wide":
+        if name == f"{key}_train":
             return trainer
     raise ValueError(f"Trainer {name} not found")
+
+
+df = pd.read_csv(TRAIN_DF)
+X, y = df.drop(columns=["sii", "id"]), df["sii"]
 
 
 trainer = get_trainer(SELECTED_MODEL)
@@ -214,4 +217,22 @@ best_params = trainer.optimize(
 print(f"Best params for {SELECTED_MODEL}:", best_params)
 
 with open(OUTPUT_PATH, "wb") as f:
+    pickle.dump(best_params, f)
+
+# Wide features
+
+df = pd.read_csv(TRAIN_WIDE_DF)
+X, y = df.drop(columns=["sii", "id"]), df["sii"]
+
+trainer = get_trainer(SELECTED_MODEL)
+save_directory = dirname(abspath(OUTPUT_WIDE_PATH))
+file_name = OUTPUT_WIDE_PATH.split("/")[-1]
+parallel_coords_file = f"{save_directory}/parallel_coords_{file_name}.png"
+best_params = trainer.optimize(
+    n_trials=TRIALS, save_parallel_coords_file=parallel_coords_file
+)
+
+print(f"Best params for {SELECTED_MODEL} wide model:", best_params)
+
+with open(OUTPUT_WIDE_PATH, "wb") as f:
     pickle.dump(best_params, f)

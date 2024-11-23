@@ -67,11 +67,13 @@ rule generate_features:
 
 rule tune_model:
     input:
-        train=j(base_data_path, "features/train_{train_file}.csv"),
+        train=j(base_data_path, "features/train_features.csv"),
+        train_wide=j(base_data_path, "features/train_wide_features.csv"),
     output:
-        output_path=j(base_data_path, "models/{model}_{train_file}.pkl"),
+        output_path=j(base_data_path, "models/{model}_train_features.pkl"),
+        output_wide_path=j(base_data_path, "models/{model}_train_wide_features.pkl"),
     params:
-        trials=100,
+        trials=2,
         seed=42,
         model="{model}",
     threads: NUM_CORES // 2
@@ -84,7 +86,7 @@ rule tune_meta_model:
     output:
         meta_model=j(base_data_path, "models/meta_model.pkl"),
     params:
-        trials=100,
+        trials=2,
         seed=42,
     threads: NUM_CORES // 2
     script: j(base_script_path, "tune_meta_model.py")
