@@ -3,7 +3,6 @@ import shutil
 import sys
 import zipfile
 
-import kaggle
 
 COMPETITION_NAME = "child-mind-institute-problematic-internet-use"
 TRAIN_FILE = "data/input/train.csv"
@@ -17,6 +16,7 @@ if os.environ.get("KAGGLE_URL_BASE") is not None:
     src = "/kaggle/input/child-mind-institute-problematic-internet-use/"
     shutil.copy(src, DOWNLOAD_DIR)
 else:
+    import kaggle
     kaggle.api.competition_download_files(
         competition=COMPETITION_NAME, path=DOWNLOAD_DIR, force=False, quiet=False
     )
