@@ -3,7 +3,6 @@ import shutil
 import sys
 import zipfile
 
-
 COMPETITION_NAME = "child-mind-institute-problematic-internet-use"
 TRAIN_FILE = "data/input/train.csv"
 # Check if running within Snakemake
@@ -14,9 +13,12 @@ if "snakemake" in sys.modules:
 DOWNLOAD_DIR = os.path.dirname(TRAIN_FILE)
 if os.environ.get("KAGGLE_URL_BASE") is not None:
     src = "/kaggle/input/child-mind-institute-problematic-internet-use/"
+    DOWNLOAD_DIR += "/"
+    print(f"Copying from {src} to {DOWNLOAD_DIR}")
     shutil.copytree(src, DOWNLOAD_DIR)
 else:
     import kaggle
+
     kaggle.api.competition_download_files(
         competition=COMPETITION_NAME, path=DOWNLOAD_DIR, force=False, quiet=False
     )
