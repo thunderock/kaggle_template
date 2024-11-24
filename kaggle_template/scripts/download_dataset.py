@@ -15,7 +15,7 @@ if os.environ.get("KAGGLE_URL_BASE") is not None:
     src = "/kaggle/input/child-mind-institute-problematic-internet-use/"
     DOWNLOAD_DIR += "/"
     print(f"Copying from {src} to {DOWNLOAD_DIR}")
-    shutil.copytree(src, DOWNLOAD_DIR)
+    shutil.copytree(src, DOWNLOAD_DIR, dirs_exist_ok=True)
 else:
     import kaggle
 
