@@ -1,12 +1,10 @@
 from kaggle_template.utils.run_utils import GPU_CORES, CPU_CORES
 from os.path import join as j
-import os
 NUM_CORES = workflow.cores
 print(GPU_CORES, CPU_CORES, NUM_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
 train_files = ["train_features", "train_wide_features"]
-base_input_path = config.get("base_input_path", "/kaggle/input/child-mind-institute-problematic-internet-use")
-base_data_path = config.get("base_data_path", "data/output")
+base_data_path = config.get("base_data_path", "data")
 base_script_path = config.get("base_script_path", "kaggle_template/scripts")
 models = {
     "catboost": j(base_data_path, "models/catboost_{train_file}.pkl",),
@@ -41,8 +39,8 @@ rule combine_features:
 
 rule generate_timeseries:
     input:
-        train=directory(j(base_input_path, "series_train.parquet")),
-        test=directory(j(base_input_path, "series_test.parquet")),
+        train=directory(j(base_data_path, "input/series_train.parquet")),
+        test=directory(j(base_data_path, "input/series_test.parquet")),
     output:
         train=j(base_data_path, "features/train_timeseries.csv"),
         test=j(base_data_path, "features/test_timeseries.csv"),
@@ -54,8 +52,8 @@ rule generate_timeseries:
 
 rule generate_features:
     input:
-        train=j(base_input_path, "train.csv"),
-        test=j(base_input_path, "test.csv"),
+        train=j(base_data_path, "input/train.csv"),
+        test=j(base_data_path, "input/test.csv"),
     output:
         train=j(base_data_path, "features/train_features.csv"),
         test=j(base_data_path, "features/test_features.csv"),
@@ -123,16 +121,15 @@ rule generate_dag:
         "snakemake --dag | sed '1d' | dot -Tpdf > {output.dag}; snakemake --filegraph | sed '1d' | dot -Tpdf > {output.dag_filegraph}"
 
 
-if os.environ.get('KAGGLE_URL_BASE') is None:
-    rule download_data:
-        output:
-            train=protected(j(base_input_path, "train.csv")),
-            test=protected(j(base_input_path, "test.csv")),
-            timeseries_train=protected(directory(j(base_input_path, "series_train.parquet"))),
-            timeseries_test=protected(directory(j(base_input_path, "series_test.parquet"))),
-        params:
-            competition=COMPETITION
-        threads: 1
-        script: j(base_script_path, "download_dataset.py")
-        #  shell:
-        #      "CUDA_VISIBLE_DEVICES=0,2 python kaggle_template/scripts/download_dataset.py"
+rule download_data:
+    output:
+        train=j(base_data_path, "input/train.csv"),
+        test=j(base_data_path, "input/test.csv"),
+        timeseries_train=directory(j(base_data_path, "input/series_train.parquet")),
+        timeseries_test=directory(j(base_data_path, "input/series_test.parquet")),
+    params:
+        competition=COMPETITION
+    threads: 1
+    script: j(base_script_path, "download_dataset.py")
+    #  shell:
+    #      "CUDA_VISIBLE_DEVICES=0,2 python kaggle_template/scripts/download_dataset.py"
