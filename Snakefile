@@ -108,7 +108,7 @@ rule submission:
         seed=42,
     output:
         analyze=j(base_data_path, "output/analyze.csv"),
-        predictions="submission.csv",
+        predictions=j(base_data_path, "output/submission.csv"),
     script: j(base_script_path, "submission.py")
 
 
