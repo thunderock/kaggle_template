@@ -71,3 +71,9 @@ kaleido = "0.1.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+
+# changes to probably improve this further
+# 1. remove wide model weight
+# 2. Do smoe feature engineering
