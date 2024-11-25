@@ -1,3 +1,4 @@
+import json
 import sys
 from abc import ABC, abstractmethod
 from os.path import abspath, dirname
@@ -13,7 +14,11 @@ from sklearn.metrics import cohen_kappa_score, make_scorer
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from xgboost import XGBRegressor
 
-from kaggle_template.utils.run_utils import write_dictionary_to_json as write_dictionary
+
+def write_dictionary(json_file, dictionary):
+    with open(json_file, "w") as file:
+        json.dump(dictionary, file, indent=4)
+
 
 # Common configurations
 TRAIN_DF = "data/features/train_wide_features.csv"

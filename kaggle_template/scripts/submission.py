@@ -1,3 +1,4 @@
+import json
 import sys
 
 import numpy as np
@@ -12,7 +13,11 @@ from sklearn.model_selection import StratifiedKFold
 from tqdm import tqdm
 from xgboost import XGBRegressor
 
-from kaggle_template.utils.run_utils import read_dictionary_from_json as read_dictionary
+
+def read_dictionary(json_file):
+    with open(json_file, "r") as file:
+        return json.load(file)
+
 
 RF_TRAIN_PARAMS = "data/models/rf_train_features.json"
 RF_TRAIN_WIDE_PARAMS = "data/models/rf_train_wide_features.json"

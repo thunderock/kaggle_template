@@ -1,4 +1,5 @@
 # %%
+import json
 import sys
 from os.path import abspath, dirname
 
@@ -10,9 +11,11 @@ from sklearn.linear_model import Ridge
 from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 
-from kaggle_template.utils.run_utils import write_dictionary_to_json as write_dictionary
 
-# %%
+def write_dictionary(json_file, dictionary):
+    with open(json_file, "w") as file:
+        json.dump(dictionary, file, indent=4)
+
 
 TRAIN_DF = "data/features/train_features.csv"
 TRAIN_WIDE_DF = "data/features/train_wide_features.csv"
