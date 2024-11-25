@@ -21,7 +21,7 @@ rule all:
             train_file=train_files,
         ),
         j(base_data_path, "dag.pdf",),
-        "submission.csv",
+        j(base_data_path, "output/submission.csv"),
 
 rule combine_features:
     input:
