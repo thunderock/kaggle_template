@@ -1,4 +1,3 @@
-import pickle
 import sys
 
 import numpy as np
@@ -13,21 +12,17 @@ from sklearn.model_selection import StratifiedKFold
 from tqdm import tqdm
 from xgboost import XGBRegressor
 
+from kaggle_template.utils.run_utils import read_dictionary_from_json as read_dictionary
 
-def read_dictionary(path):
-    with open(path, "rb") as handle:
-        return pickle.load(handle)
-
-
-RF_TRAIN_PARAMS = "data/models/rf_train_features.pkl"
-RF_TRAIN_WIDE_PARAMS = "data/models/rf_train_wide_features.pkl"
-CATBOOST_TRAIN_PARAMS = "data/models/catboost_train_features.pkl"
-CATBOOST_TRAIN_WIDE_PARAMS = "data/models/catboost_train_wide_features.pkl"
-XGB_TRAIN_PARAMS = "data/models/xgb_train_features.pkl"
-XGB_TRAIN_WIDE_PARAMS = "data/models/xgb_train_wide_features.pkl"
-LGBM_TRAIN_PARAMS = "data/models/lgbm_train_features.pkl"
-LGBM_TRAIN_WIDE_PARAMS = "data/models/lgbm_train_wide_features.pkl"
-META_MODEL = "data/models/meta_model.pkl"
+RF_TRAIN_PARAMS = "data/models/rf_train_features.json"
+RF_TRAIN_WIDE_PARAMS = "data/models/rf_train_wide_features.json"
+CATBOOST_TRAIN_PARAMS = "data/models/catboost_train_features.json"
+CATBOOST_TRAIN_WIDE_PARAMS = "data/models/catboost_train_wide_features.json"
+XGB_TRAIN_PARAMS = "data/models/xgb_train_features.json"
+XGB_TRAIN_WIDE_PARAMS = "data/models/xgb_train_wide_features.json"
+LGBM_TRAIN_PARAMS = "data/models/lgbm_train_features.json"
+LGBM_TRAIN_WIDE_PARAMS = "data/models/lgbm_train_wide_features.json"
+META_MODEL = "data/models/meta_model.json"
 TRAIN_CSV = "data/features/train_features.csv"
 TRAIN_WIDE_CSV = "data/features/train_wide_features.csv"
 TEST_CSV = "data/features/test_features.csv"
@@ -232,11 +227,7 @@ for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
 
     for name, wide_model in base_wide_models:
         wide_model.fit(train_wide_df_, train_wide_y_)
-        model = get_base_model(name)
-        model.fit(train_df_, train_y_)
-        y_pred = wide_model_weight * wide_model.predict(val_wide_df_[wide_columns]) + (
-            1 - wide_model_weight
-        ) * model.predict(val_wide_df_from_narrow_[narrow_columns])
+        y_pred = wide_model.predict(val_wide_df_[wide_columns])
         score, model_thresholds, pred_classes = custom_cohen_kappa_scorer(
             val_wide_y_from_narrow_, y_pred
         )

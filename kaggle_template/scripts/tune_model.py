@@ -1,4 +1,3 @@
-import pickle
 import sys
 from abc import ABC, abstractmethod
 from os.path import abspath, dirname
@@ -14,6 +13,8 @@ from sklearn.metrics import cohen_kappa_score, make_scorer
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from xgboost import XGBRegressor
 
+from kaggle_template.utils.run_utils import write_dictionary_to_json as write_dictionary
+
 # Common configurations
 TRAIN_DF = "data/features/train_wide_features.csv"
 TRAIN_WIDE_DF = "data/features/train_wide_features.csv"
@@ -21,8 +22,8 @@ THREADS = -1
 TRIALS = 20
 SEED = 42
 SELECTED_MODEL = "catboost"
-OUTPUT_PATH = "data/models/catboost_train_features.pkl"
-OUTPUT_WIDE_PATH = "data/models/catboost_train_wide_features.pkl"
+OUTPUT_PATH = "data/models/catboost_train_features.json"
+OUTPUT_WIDE_PATH = "data/models/catboost_train_wide_features.json"
 if "snakemake" in sys.modules:
     TRAIN_DF = snakemake.input.train
     TRAIN_WIDE_DF = snakemake.input.train_wide
@@ -215,8 +216,7 @@ best_params = trainer.optimize(
 
 print(f"Best params for {SELECTED_MODEL}:", best_params)
 
-with open(OUTPUT_PATH, "wb") as f:
-    pickle.dump(best_params, f)
+write_dictionary(OUTPUT_PATH, best_params)
 
 # Wide features
 
@@ -241,5 +241,4 @@ best_params = trainer.optimize(
 
 print(f"Best params for {SELECTED_MODEL} wide model:", best_params)
 
-with open(OUTPUT_WIDE_PATH, "wb") as f:
-    pickle.dump(best_params, f)
+write_dictionary(OUTPUT_WIDE_PATH, best_params)

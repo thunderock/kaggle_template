@@ -1,5 +1,4 @@
 # %%
-import pickle
 import sys
 from os.path import abspath, dirname
 
@@ -11,11 +10,13 @@ from sklearn.linear_model import Ridge
 from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 
+from kaggle_template.utils.run_utils import write_dictionary_to_json as write_dictionary
+
 # %%
 
 TRAIN_DF = "data/features/train_features.csv"
 TRAIN_WIDE_DF = "data/features/train_wide_features.csv"
-META_MODEL = "data/models/meta_model.pkl"
+META_MODEL = "data/models/meta_model.json"
 TRAILS = 2
 SEED = 42
 THREADS = -1
@@ -33,17 +34,6 @@ train_df.index.name = None
 train_wide_df.index.name = None
 
 X, y = train_df.drop("sii", axis=1), train_df["sii"]
-
-
-# %%
-def get_dictionary(file_name):
-    with open(file_name, "rb") as f:
-        return pickle.load(f)
-
-
-def write_dictionary(file_name, dictionary):
-    with open(file_name, "wb") as f:
-        pickle.dump(dictionary, f)
 
 
 # base_models = [

@@ -7,16 +7,16 @@ train_files = ["train_features", "train_wide_features"]
 base_data_path = config.get("base_data_path", "data")
 base_script_path = config.get("base_script_path", "kaggle_template/scripts")
 models = {
-    "catboost": j(base_data_path, "models/catboost_{train_file}.pkl",),
-    "xgb": j(base_data_path, "models/xgb_{train_file}.pkl", ),
-    "rf": j(base_data_path, "models/rf_{train_file}.pkl",),
-    "lgbm": j(base_data_path, "models/lgbm_{train_file}.pkl",),
+    "catboost": j(base_data_path, "models/catboost_{train_file}.json",),
+    "xgb": j(base_data_path, "models/xgb_{train_file}.json", ),
+    "rf": j(base_data_path, "models/rf_{train_file}.json",),
+    "lgbm": j(base_data_path, "models/lgbm_{train_file}.json",),
 }
 
 rule all:
     input:
         expand(
-            j(base_data_path, "models/{model}_{train_file}.pkl"),
+            j(base_data_path, "models/{model}_{train_file}.json"),
             model=models.keys(),
             train_file=train_files,
         ),
@@ -68,8 +68,8 @@ rule tune_model:
         train=j(base_data_path, "features/train_features.csv"),
         train_wide=j(base_data_path, "features/train_wide_features.csv"),
     output:
-        output_path=j(base_data_path, "models/{model}_train_features.pkl"),
-        output_wide_path=j(base_data_path, "models/{model}_train_wide_features.pkl"),
+        output_path=j(base_data_path, "models/{model}_train_features.json"),
+        output_wide_path=j(base_data_path, "models/{model}_train_wide_features.json"),
     params:
         trials=100,
         seed=42,
@@ -82,7 +82,7 @@ rule tune_meta_model:
         train=j(base_data_path, "features/train_features.csv"),
         train_wide=j(base_data_path, "features/train_wide_features.csv"),
     output:
-        meta_model=j(base_data_path, "models/meta_model.pkl"),
+        meta_model=j(base_data_path, "models/meta_model.json"),
     params:
         trials=100,
         seed=42,
@@ -95,15 +95,15 @@ rule submission:
         train=j(base_data_path, "features/train_features.csv"),
         test=j(base_data_path, "features/test_features.csv"),
         test_wide=j(base_data_path, "features/test_wide_features.csv"),
-        catboost=j(base_data_path, "models/catboost_train_features.pkl"),
-        catboost_wide=j(base_data_path, "models/catboost_train_wide_features.pkl"),
-        xgb=j(base_data_path, "models/xgb_train_features.pkl"),
-        xgb_wide=j(base_data_path, "models/xgb_train_wide_features.pkl"),
-        rf=j(base_data_path, "models/rf_train_features.pkl"),
-        rf_wide=j(base_data_path, "models/rf_train_wide_features.pkl"),
-        lgbm=j(base_data_path, "models/lgbm_train_features.pkl"),
-        lgbm_wide=j(base_data_path, "models/lgbm_train_wide_features.pkl"),
-        meta_model=j(base_data_path, "models/meta_model.pkl"),
+        catboost=j(base_data_path, "models/catboost_train_features.json"),
+        catboost_wide=j(base_data_path, "models/catboost_train_wide_features.json"),
+        xgb=j(base_data_path, "models/xgb_train_features.json"),
+        xgb_wide=j(base_data_path, "models/xgb_train_wide_features.json"),
+        rf=j(base_data_path, "models/rf_train_features.json"),
+        rf_wide=j(base_data_path, "models/rf_train_wide_features.json"),
+        lgbm=j(base_data_path, "models/lgbm_train_features.json"),
+        lgbm_wide=j(base_data_path, "models/lgbm_train_wide_features.json"),
+        meta_model=j(base_data_path, "models/meta_model.json"),
     params:
         seed=42,
     output:
