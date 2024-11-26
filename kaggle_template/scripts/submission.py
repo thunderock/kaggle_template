@@ -1,5 +1,6 @@
 import json
 import sys
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -12,6 +13,8 @@ from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 from tqdm import tqdm
 from xgboost import XGBRegressor
+
+warnings.filterwarnings("ignore")
 
 
 def read_dictionary(json_file):

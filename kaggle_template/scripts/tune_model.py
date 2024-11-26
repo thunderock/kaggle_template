@@ -1,5 +1,6 @@
 import json
 import sys
+import warnings
 from abc import ABC, abstractmethod
 from os.path import abspath, dirname
 
@@ -13,6 +14,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import cohen_kappa_score, make_scorer
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from xgboost import XGBRegressor
+
+warnings.filterwarnings("ignore")
 
 
 def write_dictionary(json_file, dictionary):
@@ -133,7 +136,7 @@ class CatBoostTrainer(ModelTrainer):
         }
 
     def get_fixed_params(self):
-        return {"random_seed": self.seed, "verbose": False}
+        return {"random_seed": self.seed, "verbose": False, "task_type": "GPU"}
 
 
 class XGBTrainer(ModelTrainer):
@@ -153,7 +156,7 @@ class XGBTrainer(ModelTrainer):
         }
 
     def get_fixed_params(self):
-        return {"random_state": self.seed}
+        return {"random_state": self.seed, "device": "cuda", "verbosity": 0}
 
 
 class RandomForestTrainer(ModelTrainer):
@@ -190,7 +193,7 @@ class LGBMTrainer(ModelTrainer):
         }
 
     def get_fixed_params(self):
-        return {"random_state": self.seed, "verbosity": -1}
+        return {"random_state": self.seed, "verbosity": -1, "device": "gpu"}
 
 
 def get_trainer(name):

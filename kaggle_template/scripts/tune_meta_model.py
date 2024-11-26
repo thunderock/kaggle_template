@@ -1,6 +1,7 @@
 # %%
 import json
 import sys
+import warnings
 from os.path import abspath, dirname
 
 import numpy as np
@@ -10,6 +11,8 @@ from scipy.optimize import minimize
 from sklearn.linear_model import Ridge
 from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
+
+warnings.filterwarnings("ignore")
 
 
 def write_dictionary(json_file, dictionary):
@@ -157,7 +160,7 @@ def objective(trial):
     return np.mean(score)
 
 
-sampler = optuna.samplers.TPESampler(multivariate=True)
+sampler = optuna.samplers.RandomSampler(seed=SEED)
 study = optuna.create_study(
     direction="maximize", sampler=sampler, study_name="meta_model"
 )

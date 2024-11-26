@@ -1,7 +1,10 @@
 # %%
 import sys
+import warnings
 
 import pandas as pd
+
+warnings.filterwarnings("ignore")
 
 # %%
 TRAIN_FEATURE_INPUT = "data/features/train_features.csv"

@@ -1,10 +1,13 @@
 # %%
 import sys
+import warnings
 
 import pandas as pd
 from sklearn.impute import KNNImputer, SimpleImputer
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from tqdm import tqdm
+
+warnings.filterwarnings("ignore")
 
 TRAIN_INPUT = "data/input/train.csv"
 TEST_INPUT = "data/input/test.csv"
