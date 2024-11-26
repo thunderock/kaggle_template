@@ -95,11 +95,6 @@ meta_model = Ridge(alpha=meta_dict["alpha"], random_state=RANDOM_STATE)
 meta_wide_model = Ridge(alpha=meta_dict["wide_alpha"], random_state=RANDOM_STATE)
 wide_model_weight = meta_dict["wide_weight"]
 
-stacking_model = StackingRegressor(estimators=base_models, final_estimator=meta_model)
-stacking_wide_model = StackingRegressor(
-    estimators=base_wide_models, final_estimator=meta_wide_model
-)
-
 kf = StratifiedKFold(n_splits=KFOLD, shuffle=True, random_state=RANDOM_STATE)
 
 
@@ -238,6 +233,13 @@ for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
         )
         wide_model_scores[name].append(score)
         print(f"Wide Model: {name}, Score: {score}")
+
+    stacking_model = StackingRegressor(
+        estimators=base_models, final_estimator=meta_model
+    )
+    stacking_wide_model = StackingRegressor(
+        estimators=base_wide_models, final_estimator=meta_wide_model
+    )
 
     stacking_model.fit(train_df_, train_y_)
     stacking_wide_model.fit(train_wide_df_, train_wide_y_)
