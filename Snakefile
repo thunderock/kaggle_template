@@ -1,5 +1,7 @@
 from kaggle_template.utils.run_utils import GPU_CORES, CPU_CORES
 from os.path import join as j
+import warnings
+warnings.filterwarnings("ignore")
 NUM_CORES = workflow.cores
 print(GPU_CORES, CPU_CORES, NUM_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
