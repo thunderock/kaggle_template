@@ -71,7 +71,7 @@ def custom_cohen_kappa_scorer(y_true, y_pred):
 def objective(trial):
     alpha = trial.suggest_float("alpha", 1e-4, 10, log=True)
     wide_alpha = trial.suggest_float("wide_alpha", 1e-4, 10, log=True)
-    wide_weight = 0.0
+    wide_weight = trial.suggest_float("wide_weight", 0.0, 1.0)
 
     score = []
     kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED)
@@ -168,6 +168,5 @@ fig = optuna.visualization.plot_parallel_coordinate(study)
 fig.update_layout(width=1200, height=800, title_text="meta_model")
 fig.write_image(parallel_coords_file)
 params = study.best_params
-params["wide_weight"] = 0.0
 print("Best params for meta model:", params)
 write_dictionary(META_MODEL, params)
