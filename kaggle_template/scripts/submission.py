@@ -166,6 +166,11 @@ def generate_test_predictions(narrow_df, wide_df, wide_score_weight):
     return narrow_df[["id", "pred"]]
 
 
+stacking_model = StackingRegressor(estimators=base_models, final_estimator=meta_model)
+stacking_wide_model = StackingRegressor(
+    estimators=base_wide_models, final_estimator=meta_wide_model
+)
+
 for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
     train_ids, val_ids = set(X["id"].iloc[train_idx]), set(X["id"].iloc[test_idx])
     val_wide_ids = set(train_wide_df["id"]) & val_ids
@@ -233,13 +238,6 @@ for idx, (train_idx, test_idx) in enumerate(tqdm(kf.split(X, y))):
         )
         wide_model_scores[name].append(score)
         print(f"Wide Model: {name}, Score: {score}")
-
-    stacking_model = StackingRegressor(
-        estimators=base_models, final_estimator=meta_model
-    )
-    stacking_wide_model = StackingRegressor(
-        estimators=base_wide_models, final_estimator=meta_wide_model
-    )
 
     stacking_model.fit(train_df_, train_y_)
     stacking_wide_model.fit(train_wide_df_, train_wide_y_)
