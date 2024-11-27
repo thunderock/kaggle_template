@@ -136,7 +136,10 @@ class CatBoostTrainer(ModelTrainer):
         }
 
     def get_fixed_params(self):
-        return {"random_seed": self.seed, "verbose": False, "task_type": "GPU"}
+        return {
+            "random_seed": self.seed,
+            "verbose": False,
+        }
 
 
 class XGBTrainer(ModelTrainer):
@@ -156,7 +159,7 @@ class XGBTrainer(ModelTrainer):
         }
 
     def get_fixed_params(self):
-        return {"random_state": self.seed, "device": "cuda", "verbosity": 0}
+        return {"random_state": self.seed, "verbosity": 0}
 
 
 class RandomForestTrainer(ModelTrainer):
@@ -193,7 +196,10 @@ class LGBMTrainer(ModelTrainer):
         }
 
     def get_fixed_params(self):
-        return {"random_state": self.seed, "verbosity": -1, "device": "gpu"}
+        return {
+            "random_state": self.seed,
+            "verbosity": -1,
+        }
 
 
 def get_trainer(name):
