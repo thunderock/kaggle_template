@@ -160,7 +160,7 @@ def objective(trial):
     return np.mean(score)
 
 
-sampler = optuna.samplers.CmaEsSampler(seed=SEED)
+sampler = optuna.samplers.TPESampler(multivariate=True)
 study = optuna.create_study(
     direction="maximize", sampler=sampler, study_name="meta_model"
 )
