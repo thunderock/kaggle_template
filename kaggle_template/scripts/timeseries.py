@@ -10,21 +10,16 @@ from tqdm import tqdm
 
 warnings.filterwarnings("ignore")
 
+TRAIN_INPUT = "data/input/series_train.parquet"
+TEST_INPUT = "data/input/series_test.parquet"
+TRAIN_OUTPUT = "data/features/train_time_series.csv"
+TEST_OUTPUT = "data/features/test_time_series.csv"
 
-# %%
 if "snakemake" in sys.modules:
     TRAIN_INPUT = snakemake.input.train
     TEST_INPUT = snakemake.input.test
     TRAIN_OUTPUT = snakemake.output.train
     TEST_OUTPUT = snakemake.output.test
-else:
-    TRAIN_INPUT = "data/input/series_train.parquet"
-    TEST_INPUT = "data/input/series_test.parquet"
-    TRAIN_OUTPUT = "data/features/train_time_series.csv"
-    TEST_OUTPUT = "data/features/test_time_series.csv"
-
-
-print(TRAIN_INPUT)
 
 
 def process_file(filename, dirname):

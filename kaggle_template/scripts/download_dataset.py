@@ -1,7 +1,10 @@
 import os
 import shutil
 import sys
+import warnings
 import zipfile
+
+warnings.filterwarnings("ignore")
 
 COMPETITION_NAME = "child-mind-institute-problematic-internet-use"
 TRAIN_FILE = "data/input/train.csv"

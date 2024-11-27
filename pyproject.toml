@@ -76,4 +76,6 @@ build-backend = "poetry.core.masonry.api"
 
 # changes to probably improve this further
 # 1. remove wide model weight
-# 2. Do smoe feature engineering
+# 2. Do smoe feature engineering : added some new features
+# 3. need to filter out some features depending on correlation
+# 4. Add lstm and vae features for time series component

@@ -21,7 +21,7 @@ rule all:
             train_file=train_files,
         ),
         j(base_data_path, "dag.pdf",),
-        "output/submission.csv",
+        "submission.csv",
 
 rule combine_features:
     input:
@@ -74,7 +74,7 @@ rule tune_model:
         trials=100,
         seed=42,
         model="{model}",
-    threads: NUM_CORES // 2
+    threads: NUM_CORES
     script: j(base_script_path, "tune_model.py")
 
 rule tune_meta_model:
@@ -86,7 +86,7 @@ rule tune_meta_model:
     params:
         trials=100,
         seed=42,
-    threads: NUM_CORES // 2
+    threads: NUM_CORES
     script: j(base_script_path, "tune_meta_model.py")
 
 rule submission:
@@ -108,7 +108,7 @@ rule submission:
         seed=42,
     output:
         analyze=j(base_data_path, "output/analyze.csv"),
-        predictions="output/submission.csv",
+        predictions="submission.csv",
     script: j(base_script_path, "submission.py")
 
 
