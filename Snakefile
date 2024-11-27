@@ -21,7 +21,7 @@ rule all:
             train_file=train_files,
         ),
         j(base_data_path, "dag.pdf",),
-        "output/submission.csv",
+        "submission.csv",
 
 rule combine_features:
     input:
@@ -108,7 +108,7 @@ rule submission:
         seed=42,
     output:
         analyze=j(base_data_path, "output/analyze.csv"),
-        predictions="output/submission.csv",
+        predictions="submission.csv",
     script: j(base_script_path, "submission.py")
 
 
