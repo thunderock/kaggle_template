@@ -74,7 +74,7 @@ rule tune_model:
         trials=100,
         seed=42,
         model="{model}",
-    threads: NUM_CORES
+    threads: NUM_CORES // 2
     script: j(base_script_path, "tune_model.py")
 
 rule tune_meta_model:
@@ -86,7 +86,7 @@ rule tune_meta_model:
     params:
         trials=100,
         seed=42,
-    threads: NUM_CORES
+    threads: NUM_CORES // 2
     script: j(base_script_path, "tune_meta_model.py")
 
 rule submission:
