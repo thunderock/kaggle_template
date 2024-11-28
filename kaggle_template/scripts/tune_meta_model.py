@@ -12,7 +12,7 @@ from sklearn.linear_model import Ridge
 from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 
-warnings.filterwarnings("ignore")
+warnings.simplefilter("always")
 
 
 def write_dictionary(json_file, dictionary):
