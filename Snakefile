@@ -71,10 +71,10 @@ rule tune_model:
         output_path=j(base_data_path, "models/{model}_train_features.json"),
         output_wide_path=j(base_data_path, "models/{model}_train_wide_features.json"),
     params:
-        trials=100,
+        trials=2,
         seed=42,
         model="{model}",
-    threads: NUM_CORES // 2
+    threads: NUM_CORES
     script: j(base_script_path, "tune_model.py")
 
 rule tune_meta_model:
@@ -84,9 +84,9 @@ rule tune_meta_model:
     output:
         meta_model=j(base_data_path, "models/meta_model.json"),
     params:
-        trials=100,
+        trials=200,
         seed=42,
-    threads: NUM_CORES // 2
+    threads: NUM_CORES
     script: j(base_script_path, "tune_meta_model.py")
 
 rule submission:

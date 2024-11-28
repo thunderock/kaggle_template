@@ -1,6 +1,7 @@
 import json
 import sys
 import warnings
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -18,6 +19,8 @@ warnings.filterwarnings("ignore")
 
 
 def read_dictionary(json_file):
+    if isinstance(json_file, dict):
+        return json_file
     with open(json_file, "r") as file:
         return json.load(file)
 
@@ -60,6 +63,88 @@ if "snakemake" in sys.modules:
 KFOLD = 10
 
 
+CATBOOST_TRAIN_PARAMS: dict[str:Any] = {
+    "learning_rate": 0.018499385976131533,
+    "depth": 6,
+    "iterations": 397,
+    "l2_leaf_reg": 9,
+    "random_seed": 42,
+    "verbose": False,
+}
+CATBOOST_TRAIN_WIDE_PARAMS: dict[str:Any] = {
+    "learning_rate": 0.0821173871234029,
+    "depth": 5,
+    "iterations": 352,
+    "l2_leaf_reg": 8,
+    "random_seed": 42,
+    "verbose": False,
+}
+LGBM_TRAIN_PARAMS: dict[str:Any] = {
+    "max_depth": 11,
+    "learning_rate": 0.031826622486680105,
+    "num_leaves": 403,
+    "min_data_in_leaf": 10,
+    "bagging_fraction": 0.8082756411205733,
+    "bagging_freq": 4,
+    "lambda_l1": 8.474834441064655,
+    "lambda_l2": 0.18581949137047682,
+    "random_state": 42,
+    "verbosity": -1,
+}
+LGBM_TRAIN_WIDE_PARAMS: dict[str:Any] = {
+    "max_depth": 16,
+    "learning_rate": 0.08306499450217275,
+    "num_leaves": 523,
+    "min_data_in_leaf": 19,
+    "bagging_fraction": 0.6411557530980527,
+    "bagging_freq": 7,
+    "lambda_l1": 3.0308971222515972,
+    "lambda_l2": 0.2985288060827255,
+    "random_state": 42,
+    "verbosity": -1,
+}
+RF_TRAIN_PARAMS: dict[str:Any] = {
+    "n_estimators": 446,
+    "max_depth": 13,
+    "min_samples_split": 12,
+    "min_samples_leaf": 12,
+    "max_features": 0.8063206139612977,
+    "random_state": 42,
+    "bootstrap": True,
+}
+RF_TRAIN_WIDE_PARAMS: dict[str:Any] = {
+    "n_estimators": 548,
+    "max_depth": 14,
+    "min_samples_split": 7,
+    "min_samples_leaf": 7,
+    "max_features": 0.8350184681609285,
+    "random_state": 42,
+    "bootstrap": True,
+}
+XGB_TRAIN_PARAMS: dict[str:Any] = {
+    "learning_rate": 0.022271754957355006,
+    "max_depth": 9,
+    "n_estimators": 413,
+    "subsample": 0.7167165928137409,
+    "colsample_bytree": 0.9662549806986663,
+    "gamma": 3,
+    "reg_alpha": 2,
+    "reg_lambda": 2,
+    "random_state": 42,
+    "verbosity": 0,
+}
+XGB_TRAIN_WIDE_PARAMS: dict[str:Any] = {
+    "learning_rate": 0.03880313913184694,
+    "max_depth": 10,
+    "n_estimators": 518,
+    "subsample": 0.9274351187067935,
+    "colsample_bytree": 0.560644040675395,
+    "gamma": 0,
+    "reg_alpha": 5,
+    "reg_lambda": 1,
+    "random_state": 42,
+    "verbosity": 0,
+}
 print("DEBUG LOGGING: ")
 print("RF_TRAIN_PARAMS: ", read_dictionary(RF_TRAIN_PARAMS))
 print("RF_TRAIN_WIDE_PARAMS: ", read_dictionary(RF_TRAIN_WIDE_PARAMS))
