@@ -145,6 +145,11 @@ XGB_TRAIN_WIDE_PARAMS: dict[str:Any] = {
     "random_state": 42,
     "verbosity": 0,
 }
+META_MODEL: dict[str:Any] = {
+    "alpha": 0.0023391581428953223,
+    "wide_alpha": 0.0018945265899503263,
+    "wide_weight": 0.22974066229960902,
+}
 print("DEBUG LOGGING: ")
 print("RF_TRAIN_PARAMS: ", read_dictionary(RF_TRAIN_PARAMS))
 print("RF_TRAIN_WIDE_PARAMS: ", read_dictionary(RF_TRAIN_WIDE_PARAMS))
