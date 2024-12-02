@@ -15,6 +15,8 @@ from sklearn.metrics import cohen_kappa_score, make_scorer
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from xgboost import XGBRegressor
 
+from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold
+
 warnings.filterwarnings("ignore")
 
 
@@ -24,14 +26,15 @@ def write_dictionary(json_file, dictionary):
 
 
 # Common configurations
-TRAIN_DF = "data/features/train_wide_features.csv"
+TRAIN_DF = "data/features/train_features.csv"
 TRAIN_WIDE_DF = "data/features/train_wide_features.csv"
-THREADS = -1
+THREADS = 1
 TRIALS = 20
 SEED = 42
 SELECTED_MODEL = "catboost"
 OUTPUT_PATH = "data/models/catboost_train_features.json"
 OUTPUT_WIDE_PATH = "data/models/catboost_train_wide_features.json"
+FEATURE_SELECTION_THRESHOLD = 0.7
 if "snakemake" in sys.modules:
     TRAIN_DF = snakemake.input.train
     TRAIN_WIDE_DF = snakemake.input.train_wide
@@ -41,12 +44,14 @@ if "snakemake" in sys.modules:
     OUTPUT_PATH = snakemake.output.output_path
     OUTPUT_WIDE_PATH = snakemake.output.output_wide_path
     THREADS = snakemake.threads
+    FEATURE_SELECTION_THRESHOLD = snakemake.params.feature_selection_threshold
 print("debugging: ")
 print("TRAIN_DF: ", TRAIN_DF)
 print("TRIALS: ", TRIALS)
 print("SEED: ", SEED)
 print("SELECTED_MODEL: ", SELECTED_MODEL)
 print("OUTPUT_PATH: ", OUTPUT_PATH)
+print("FEATURE SELECTION THRESHOLD: ", FEATURE_SELECTION_THRESHOLD)
 
 
 # Common scorer function
@@ -210,6 +215,7 @@ def get_trainer(name):
 
 
 df = pd.read_csv(TRAIN_DF)
+df = get_dframe_with_features_by_threshold(df, FEATURE_SELECTION_THRESHOLD)
 X, y = df.drop(columns=["sii", "id"]), df["sii"]
 # Usage
 trainers = {

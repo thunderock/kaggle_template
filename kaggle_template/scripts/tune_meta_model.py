@@ -12,6 +12,8 @@ from sklearn.linear_model import Ridge
 from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 
+from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold
+
 warnings.simplefilter("always")
 
 
@@ -26,6 +28,7 @@ META_MODEL = "data/models/meta_model.json"
 TRAILS = 2
 SEED = 42
 THREADS = -1
+FEATURE_SELECTION_THRESHOLD = 0.7
 if "snakemake" in sys.modules:
     TRAIN_DF = snakemake.input.train
     TRAIN_WIDE_DF = snakemake.input.train_wide
@@ -33,9 +36,16 @@ if "snakemake" in sys.modules:
     META_MODEL = snakemake.output.meta_model
     SEED = snakemake.params.seed
     THREADS = snakemake.threads
+    FEATURE_SELECTION_THRESHOLD = snakemake.params.feature_selection_threshold
 
-train_df = pd.read_csv(TRAIN_DF).set_index("id", drop=False)
-train_wide_df = pd.read_csv(TRAIN_WIDE_DF).set_index("id", drop=False)
+train_df = get_dframe_with_features_by_threshold(
+    pd.read_csv(TRAIN_DF), FEATURE_SELECTION_THRESHOLD
+)
+train_df = train_df.set_index("id", drop=False)
+train_wide_df = get_dframe_with_features_by_threshold(
+    pd.read_csv(TRAIN_WIDE_DF), FEATURE_SELECTION_THRESHOLD
+)
+train_wide_df = train_wide_df.set_index("id", drop=False)
 train_df.index.name = None
 train_wide_df.index.name = None
 

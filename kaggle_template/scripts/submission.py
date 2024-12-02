@@ -15,6 +15,8 @@ from sklearn.model_selection import StratifiedKFold
 from tqdm import tqdm
 from xgboost import XGBRegressor
 
+from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold
+
 warnings.filterwarnings("ignore")
 
 
@@ -41,6 +43,8 @@ TEST_WIDE_CSV = "data/features/test_wide_features.csv"
 PREDICTIONS_TO_ANALYZE = "predictions_to_analyze.csv"
 PREDICTIONS_TO_SUBMIT = "predictions_to_submit.csv"
 RANDOM_STATE = 42
+THREADS = 4
+FEATURE_SELECTION_THRESHOLD = 0.7
 
 if "snakemake" in sys.modules:
     RF_TRAIN_PARAMS = snakemake.input.rf
@@ -59,6 +63,8 @@ if "snakemake" in sys.modules:
     PREDICTIONS_TO_ANALYZE = snakemake.output.analyze
     PREDICTIONS_TO_SUBMIT = snakemake.output.predictions
     RANDOM_STATE = snakemake.params.seed
+    THREADS = snakemake.threads
+    FEATURE_SELECTION_THRESHOLD = snakemake.params.feature_selection_threshold
 
 KFOLD = 10
 
@@ -209,8 +215,14 @@ def custom_cohen_kappa_scorer(y_true, y_pred):
     )
 
 
-train_df = pd.read_csv(TRAIN_CSV).set_index("id", drop=False)
-train_wide_df = pd.read_csv(TRAIN_WIDE_CSV).set_index("id", drop=False)
+train_df = get_dframe_with_features_by_threshold(
+    pd.read_csv(TRAIN_CSV), FEATURE_SELECTION_THRESHOLD
+)
+train_wide_df = get_dframe_with_features_by_threshold(
+    pd.read_csv(TRAIN_WIDE_CSV), FEATURE_SELECTION_THRESHOLD
+)
+train_df = train_df.set_index("id", drop=False)
+train_wide_df = train_wide_df.set_index("id", drop=False)
 test_df = pd.read_csv(TEST_CSV).set_index("id", drop=False)
 test_wide_df = pd.read_csv(TEST_WIDE_CSV).set_index("id", drop=False)
 train_df.index.name = None

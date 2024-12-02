@@ -3,6 +3,7 @@ from os.path import join as j
 NUM_CORES = workflow.cores
 print(GPU_CORES, CPU_CORES, NUM_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
+FEATURE_SELECTION_THRESHOLD = 0.7
 train_files = ["train_features", "train_wide_features"]
 base_data_path = config.get("base_data_path", "data")
 base_script_path = config.get("base_script_path", "kaggle_template/scripts")
@@ -74,6 +75,7 @@ rule tune_model:
         trials=2,
         seed=42,
         model="{model}",
+        feature_selection_threshold=FEATURE_SELECTION_THRESHOLD,
     threads: NUM_CORES // 2
     script: j(base_script_path, "tune_model.py")
 
@@ -86,6 +88,7 @@ rule tune_meta_model:
     params:
         trials=2,
         seed=42,
+        feature_selection_threshold=FEATURE_SELECTION_THRESHOLD,
     threads: NUM_CORES // 2
     script: j(base_script_path, "tune_meta_model.py")
 
@@ -106,6 +109,8 @@ rule submission:
         meta_model=j(base_data_path, "models/meta_model.json"),
     params:
         seed=42,
+        feature_selection_threshold=FEATURE_SELECTION_THRESHOLD,
+    threads: NUM_CORES
     output:
         analyze=j(base_data_path, "output/analyze.csv"),
         predictions="submission.csv",
