@@ -6125,6 +6125,16 @@ files = [
 ]
 
 [[package]]
+name = "ultraimport"
+version = "0.0.7"
+description = "Get control over your imports -- no matter how you run your code."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "ultraimport-0.0.7.tar.gz", hash = "sha256:1cbd2be936f48101fcffd8f443fb7f37719ce9d10fcb8f2bd10e2be97895af1c"},
+]
+
+[[package]]
 name = "uri-template"
 version = "1.3.0"
 description = "RFC 6570 URI Template Processor"
@@ -6635,4 +6645,4 @@ pyyaml = ">=6.0,<7.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11.0"
-content-hash = "b175cc796b8c98693718891634a1f747e9d465408f97f90091d8d874393f0e8b"
+content-hash = "656b2a1fbd54554cd3fbc610673166d2af4e48c8994078991464bdabc3b2d9b7"

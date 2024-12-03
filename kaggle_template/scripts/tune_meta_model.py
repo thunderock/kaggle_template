@@ -1,5 +1,6 @@
 # %%
 import json
+import os
 import sys
 import warnings
 from os.path import abspath, dirname
@@ -12,7 +13,16 @@ from sklearn.linear_model import Ridge
 from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 
-from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold
+if os.getenv("KAGGLE_URL_BASE"):
+    import ultraimport
+
+    get_dframe_with_features_by_threshold = ultraimport(
+        "__dir__/../../kaggle_template/utils/run_utils.py",
+        "get_dframe_with_features_by_threshold",
+    )
+else:
+    from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold
+
 
 warnings.simplefilter("always")
 

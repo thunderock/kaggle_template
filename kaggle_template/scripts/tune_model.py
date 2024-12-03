@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import warnings
 from abc import ABC, abstractmethod
@@ -15,7 +16,16 @@ from sklearn.metrics import cohen_kappa_score, make_scorer
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from xgboost import XGBRegressor
 
-from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold
+if os.getenv("KAGGLE_URL_BASE"):
+    import ultraimport
+
+    get_dframe_with_features_by_threshold = ultraimport(
+        "__dir__/../../kaggle_template/utils/run_utils.py",
+        "get_dframe_with_features_by_threshold",
+    )
+else:
+    from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold
+
 
 warnings.filterwarnings("ignore")
 

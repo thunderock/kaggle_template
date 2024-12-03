@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import warnings
 from typing import Any
@@ -15,7 +16,15 @@ from sklearn.model_selection import StratifiedKFold
 from tqdm import tqdm
 from xgboost import XGBRegressor
 
-from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold
+if os.getenv("KAGGLE_URL_BASE"):
+    import ultraimport
+
+    get_dframe_with_features_by_threshold = ultraimport(
+        "__dir__/../../kaggle_template/utils/run_utils.py",
+        "get_dframe_with_features_by_threshold",
+    )
+else:
+    from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold
 
 warnings.filterwarnings("ignore")
 
