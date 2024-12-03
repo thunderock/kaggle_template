@@ -70,92 +70,95 @@ KFOLD = 10
 
 
 CATBOOST_TRAIN_PARAMS: dict[str:Any] = {
-    "learning_rate": 0.018499385976131533,
+    "learning_rate": 0.052335599837526434,
     "depth": 6,
-    "iterations": 397,
-    "l2_leaf_reg": 9,
+    "iterations": 352,
+    "l2_leaf_reg": 15,
     "random_seed": 42,
     "verbose": False,
 }
 CATBOOST_TRAIN_WIDE_PARAMS: dict[str:Any] = {
-    "learning_rate": 0.0821173871234029,
-    "depth": 5,
-    "iterations": 352,
-    "l2_leaf_reg": 8,
+    "learning_rate": 0.07739082107142103,
+    "depth": 4,
+    "iterations": 254,
+    "l2_leaf_reg": 10,
     "random_seed": 42,
     "verbose": False,
 }
 LGBM_TRAIN_PARAMS: dict[str:Any] = {
-    "max_depth": 11,
-    "learning_rate": 0.031826622486680105,
-    "num_leaves": 403,
-    "min_data_in_leaf": 10,
-    "bagging_fraction": 0.8082756411205733,
-    "bagging_freq": 4,
-    "lambda_l1": 8.474834441064655,
-    "lambda_l2": 0.18581949137047682,
+    "max_depth": 14,
+    "learning_rate": 0.05266538108576567,
+    "num_leaves": 439,
+    "min_data_in_leaf": 11,
+    "bagging_fraction": 0.5372487838046379,
+    "bagging_freq": 1,
+    "lambda_l1": 5.861462412806318,
+    "lambda_l2": 0.07292117586631806,
     "random_state": 42,
     "verbosity": -1,
 }
 LGBM_TRAIN_WIDE_PARAMS: dict[str:Any] = {
-    "max_depth": 16,
-    "learning_rate": 0.08306499450217275,
-    "num_leaves": 523,
-    "min_data_in_leaf": 19,
-    "bagging_fraction": 0.6411557530980527,
-    "bagging_freq": 7,
-    "lambda_l1": 3.0308971222515972,
-    "lambda_l2": 0.2985288060827255,
+    "max_depth": 17,
+    "learning_rate": 0.061251438480778755,
+    "num_leaves": 117,
+    "min_data_in_leaf": 14,
+    "bagging_fraction": 0.6245504220583282,
+    "bagging_freq": 5,
+    "lambda_l1": 6.453079863609765,
+    "lambda_l2": 0.012166685442452725,
     "random_state": 42,
     "verbosity": -1,
 }
+META_MODEL: dict[str:Any] = {
+    "alpha": 0.8861230517534572,
+    "wide_alpha": 0.09192897203020362,
+    "wide_weight": 0.4221394292247178,
+}
 RF_TRAIN_PARAMS: dict[str:Any] = {
-    "n_estimators": 446,
-    "max_depth": 13,
-    "min_samples_split": 12,
-    "min_samples_leaf": 12,
-    "max_features": 0.8063206139612977,
+    "n_estimators": 400,
+    "max_depth": 40,
+    "min_samples_split": 4,
+    "min_samples_leaf": 5,
+    "max_features": 0.8099200178604307,
     "random_state": 42,
     "bootstrap": True,
 }
+
 RF_TRAIN_WIDE_PARAMS: dict[str:Any] = {
-    "n_estimators": 548,
-    "max_depth": 14,
-    "min_samples_split": 7,
-    "min_samples_leaf": 7,
-    "max_features": 0.8350184681609285,
+    "n_estimators": 85,
+    "max_depth": 13,
+    "min_samples_split": 15,
+    "min_samples_leaf": 4,
+    "max_features": 0.8851446675024941,
     "random_state": 42,
     "bootstrap": True,
 }
 XGB_TRAIN_PARAMS: dict[str:Any] = {
-    "learning_rate": 0.022271754957355006,
-    "max_depth": 9,
-    "n_estimators": 413,
-    "subsample": 0.7167165928137409,
-    "colsample_bytree": 0.9662549806986663,
-    "gamma": 3,
-    "reg_alpha": 2,
+    "learning_rate": 0.026291134093558096,
+    "max_depth": 5,
+    "n_estimators": 740,
+    "subsample": 0.7116355627180203,
+    "colsample_bytree": 0.635298144423355,
+    "gamma": 2,
+    "reg_alpha": 3,
     "reg_lambda": 2,
     "random_state": 42,
     "verbosity": 0,
 }
+
 XGB_TRAIN_WIDE_PARAMS: dict[str:Any] = {
-    "learning_rate": 0.03880313913184694,
+    "learning_rate": 0.07065769767808697,
     "max_depth": 10,
-    "n_estimators": 518,
-    "subsample": 0.9274351187067935,
-    "colsample_bytree": 0.560644040675395,
-    "gamma": 0,
-    "reg_alpha": 5,
+    "n_estimators": 563,
+    "subsample": 0.6045349329921547,
+    "colsample_bytree": 0.760205453222906,
+    "gamma": 2,
+    "reg_alpha": 3,
     "reg_lambda": 1,
     "random_state": 42,
     "verbosity": 0,
 }
-META_MODEL: dict[str:Any] = {
-    "alpha": 0.0023391581428953223,
-    "wide_alpha": 0.0018945265899503263,
-    "wide_weight": 0.22974066229960902,
-}
+
 print("DEBUG LOGGING: ")
 print("RF_TRAIN_PARAMS: ", read_dictionary(RF_TRAIN_PARAMS))
 print("RF_TRAIN_WIDE_PARAMS: ", read_dictionary(RF_TRAIN_WIDE_PARAMS))

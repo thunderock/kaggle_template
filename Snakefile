@@ -132,7 +132,7 @@ rule upload_data_generate_dag:
         shell("zip -r temp/kaggle_template.zip Snakefile Makefile kaggle_template kaggle_packages.mp4 submission.csv data/models data/output data/features")
         if not os.getenv('KAGGLE_URL_BASE'):
             timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-            shell("poetry run kaggle datasets version  -p temp -m 'Updated at {timestamp}'")
+            shell("poetry run kaggle datasets version  -p temp -m 'Updated at {timestamp}' -d")
         shell("rm -rf temp")
 
 rule download_data:
