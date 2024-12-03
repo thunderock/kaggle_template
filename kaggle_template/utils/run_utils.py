@@ -14,4 +14,5 @@ def get_dframe_with_features_by_threshold(dframe, sample_threshold):
         .sort_values(ascending=False, key=abs)
         .head(int(sample_threshold * len(features) + 1))
     )
-    return dframe[list(set(sii_corr.index.tolist() + ["sii", "id"]))]
+    selected_features = list(set(sii_corr.index.tolist() + ["sii", "id"]))
+    return dframe[selected_features]

@@ -1,8 +1,10 @@
 from kaggle_template.utils.run_utils import GPU_CORES, CPU_CORES
 from os.path import join as j
+import time
 NUM_CORES = workflow.cores
 print(GPU_CORES, CPU_CORES, NUM_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
+TRAILS = 2
 FEATURE_SELECTION_THRESHOLD = 0.7
 train_files = ["train_features", "train_wide_features"]
 base_data_path = config.get("base_data_path", "data")
@@ -21,8 +23,7 @@ rule all:
             model=models.keys(),
             train_file=train_files,
         ),
-        j(base_data_path, "dag.pdf",),
-        "submission.csv",
+        j(base_data_path, "output/dag.pdf",),
 
 rule combine_features:
     input:
@@ -72,7 +73,7 @@ rule tune_model:
         output_path=j(base_data_path, "models/{model}_train_features.json"),
         output_wide_path=j(base_data_path, "models/{model}_train_wide_features.json"),
     params:
-        trials=2,
+        trials=TRAILS,
         seed=42,
         model="{model}",
         feature_selection_threshold=FEATURE_SELECTION_THRESHOLD,
@@ -86,7 +87,7 @@ rule tune_meta_model:
     output:
         meta_model=j(base_data_path, "models/meta_model.json"),
     params:
-        trials=2,
+        trials=TRAILS,
         seed=42,
         feature_selection_threshold=FEATURE_SELECTION_THRESHOLD,
     threads: NUM_CORES // 2
@@ -117,14 +118,22 @@ rule submission:
     script: j(base_script_path, "submission.py")
 
 
-rule generate_dag:
+rule upload_data_generate_dag:
+    input:
+        "submission.csv",
     output:
-        dag=j(base_data_path, "dag.pdf"),
-        dag_filegraph=j(base_data_path, "dag_filegraph.pdf"),
+        dag=j(base_data_path, "output/dag.pdf"),
+        dag_filegraph=j(base_data_path, "output/dag_filegraph.pdf"),
     threads: 1
-    shell:
-        "snakemake --dag | sed '1d' | dot -Tpdf > {output.dag}; snakemake --filegraph | sed '1d' | dot -Tpdf > {output.dag_filegraph}"
-
+    run:
+        shell("snakemake --dag | sed '1d' | dot -Tpdf > {output.dag}")
+        shell("snakemake --filegraph | sed '1d' | dot -Tpdf > {output.dag_filegraph}")
+        shell("rm -rf temp; mkdir temp; cp dataset-metadata.json temp/")
+        shell("zip -r temp/kaggle_template.zip Snakefile Makefile kaggle_template kaggle_packages.mp4 submission.csv data/models data/output data/features")
+        if not os.getenv('KAGGLE_URL_BASE'):
+            timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+            shell("poetry run kaggle datasets version  -p temp -m 'Updated at {timestamp}'")
+        shell("rm -rf temp")
 
 rule download_data:
     output:

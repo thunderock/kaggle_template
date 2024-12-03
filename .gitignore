@@ -164,3 +164,4 @@ data/
 .snakemake/
 catboost_info/*
 core.*
+submission.csv

@@ -5,5 +5,10 @@
     {
       "name": "CC0-1.0"
     }
+  ],
+  "resources":[
+    {
+      "path": "kaggle_template.zip"
+    }
   ]
 }
