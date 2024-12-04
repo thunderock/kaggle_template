@@ -67,7 +67,6 @@ optuna = "^4.0.0"
 statsmodels = "^0.14.4"
 lightgbm = "^4.5.0"
 kaleido = "0.1.0"
-ultraimport = "^0.0.7"
 
 [build-system]
 requires = ["poetry-core"]
