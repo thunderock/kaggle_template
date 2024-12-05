@@ -4,7 +4,7 @@ import time
 NUM_CORES = workflow.cores
 print(GPU_CORES, CPU_CORES, NUM_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
-TRAILS = 2
+TRAILS = 1
 FEATURE_SELECTION_THRESHOLD = 0.7
 train_files = ["train_features", "train_wide_features"]
 base_data_path = config.get("base_data_path", "data")
@@ -128,12 +128,12 @@ rule upload_data_generate_dag:
     run:
         shell("snakemake --dag | sed '1d' | dot -Tpdf > {output.dag}")
         shell("snakemake --filegraph | sed '1d' | dot -Tpdf > {output.dag_filegraph}")
-        shell("rm -rf temp; mkdir temp; cp dataset-metadata.json temp/")
-        shell("zip -r temp/kaggle_template.zip Snakefile Makefile kaggle_template kaggle_packages.mp4 submission.csv data/models data/output data/features")
         if not os.getenv('KAGGLE_URL_BASE'):
+            shell("rm -rf temp; mkdir temp; cp dataset-metadata.json temp/")
+            shell("zip -r temp/kaggle_template.zip Snakefile Makefile kaggle_template kaggle_packages.mp4 submission.csv data/models data/output data/features")
             timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
             shell("poetry run kaggle datasets version  -p temp -m 'Updated at {timestamp}' -d")
-        shell("rm -rf temp")
+            shell("rm -rf temp")
 
 rule download_data:
     output:
