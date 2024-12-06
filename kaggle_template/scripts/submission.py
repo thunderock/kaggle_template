@@ -63,8 +63,8 @@ FEATURE_SELECTION_THRESHOLD = 0.7
 KFOLD = 10
 
 if "snakemake" in sys.modules:
-    # RF_TRAIN_PARAMS = snakemake.input.rf
-    # RF_TRAIN_WIDE_PARAMS = snakemake.input.rf_wide
+    RF_TRAIN_PARAMS = snakemake.input.rf
+    RF_TRAIN_WIDE_PARAMS = snakemake.input.rf_wide
     CATBOOST_TRAIN_PARAMS = snakemake.input.catboost
     CATBOOST_TRAIN_WIDE_PARAMS = snakemake.input.catboost_wide
     XGB_TRAIN_PARAMS = snakemake.input.xgb
@@ -186,14 +186,14 @@ print("LGBM_TRAIN_WIDE_PARAMS: ", read_dictionary(LGBM_TRAIN_WIDE_PARAMS))
 print("META_MODEL: ", read_dictionary(META_MODEL))
 
 base_models = [
-    # ("rf", RandomForestRegressor(**read_dictionary(RF_TRAIN_PARAMS))),
+    ("rf", RandomForestRegressor(**read_dictionary(RF_TRAIN_PARAMS))),
     ("catboost", CatBoostRegressor(**read_dictionary(CATBOOST_TRAIN_PARAMS))),
     ("xgb", XGBRegressor(**read_dictionary(XGB_TRAIN_PARAMS))),
     ("lgbm", LGBMRegressor(**read_dictionary(LGBM_TRAIN_PARAMS))),
 ]
 
 base_wide_models = [
-    # ("rf", RandomForestRegressor(**read_dictionary(RF_TRAIN_WIDE_PARAMS))),
+    ("rf", RandomForestRegressor(**read_dictionary(RF_TRAIN_WIDE_PARAMS))),
     ("catboost", CatBoostRegressor(**read_dictionary(CATBOOST_TRAIN_WIDE_PARAMS))),
     ("xgb", XGBRegressor(**read_dictionary(XGB_TRAIN_WIDE_PARAMS))),
     ("lgbm", LGBMRegressor(**read_dictionary(LGBM_TRAIN_WIDE_PARAMS))),
