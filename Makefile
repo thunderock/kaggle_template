@@ -4,6 +4,7 @@ CORES ?= all
 DATA_PATH ?= data
 SCRIPT_PATH ?= kaggle_template/scripts
 KFOLD ?= 2
+TRIALS ?= 200
 
 .PHONY: clean_snakemake
 clean_snakemake:
@@ -60,9 +61,9 @@ cs: clean_snakemake
 .PHONY: snakemake
 snakemake: clean_snakemake
 	@make setup
-	@echo "running snakemake with $(CORES) cores..."
-	@poetry run snakemake all --cores $(CORES) --config base_data_path=$(DATA_PATH) base_script_path=$(SCRIPT_PATH) kfold=$(KFOLD) --nolock --ignore-incomplete
+	@echo "running snakemake with $(CORES) cores...for $(KFOLD) fold and $(TRIALS) trials"
+	@poetry run snakemake all --cores $(CORES) --config base_data_path=$(DATA_PATH) base_script_path=$(SCRIPT_PATH) kfold=$(KFOLD) trials=$(TRIALS) --nolock --ignore-incomplete
 
 .PHONY: snakemake_kaggle
 snakemake_kaggle:
-	snakemake --cores all --config base_script_path=kaggle_template/scripts base_data_path=data kfold=10 --nolock --ignore-incomplete
+	snakemake --cores all --config base_script_path=kaggle_template/scripts base_data_path=data kfold=10 trials=1 --nolock --ignore-incomplete
