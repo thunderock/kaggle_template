@@ -1,4 +1,5 @@
 # %%
+import importlib.util
 import json
 import os
 import sys
@@ -14,11 +15,16 @@ from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 
 if os.getenv("KAGGLE_URL_BASE"):
-    import ultraimport
+    current_dir = os.path.dirname(__file__)
+    target_path = os.path.join(current_dir, "../../kaggle_template/utils/run_utils.py")
+    target_path = os.path.abspath(target_path)
 
-    get_dframe_with_features_by_threshold = ultraimport(
-        "__dir__/../../kaggle_template/utils/run_utils.py",
-        "get_dframe_with_features_by_threshold",
+    spec = importlib.util.spec_from_file_location("run_utils", target_path)
+    run_utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(run_utils)
+
+    get_dframe_with_features_by_threshold = (
+        run_utils.get_dframe_with_features_by_threshold
     )
 else:
     from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold

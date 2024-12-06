@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import os
 import sys
@@ -17,11 +18,16 @@ from tqdm import tqdm
 from xgboost import XGBRegressor
 
 if os.getenv("KAGGLE_URL_BASE"):
-    import ultraimport
+    current_dir = os.path.dirname(__file__)
+    target_path = os.path.join(current_dir, "../../kaggle_template/utils/run_utils.py")
+    target_path = os.path.abspath(target_path)
 
-    get_dframe_with_features_by_threshold = ultraimport(
-        "__dir__/../../kaggle_template/utils/run_utils.py",
-        "get_dframe_with_features_by_threshold",
+    spec = importlib.util.spec_from_file_location("run_utils", target_path)
+    run_utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(run_utils)
+
+    get_dframe_with_features_by_threshold = (
+        run_utils.get_dframe_with_features_by_threshold
     )
 else:
     from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold
@@ -54,6 +60,7 @@ PREDICTIONS_TO_SUBMIT = "predictions_to_submit.csv"
 RANDOM_STATE = 42
 THREADS = 4
 FEATURE_SELECTION_THRESHOLD = 0.7
+KFOLD = 10
 
 if "snakemake" in sys.modules:
     RF_TRAIN_PARAMS = snakemake.input.rf
@@ -74,8 +81,7 @@ if "snakemake" in sys.modules:
     RANDOM_STATE = snakemake.params.seed
     THREADS = snakemake.threads
     FEATURE_SELECTION_THRESHOLD = snakemake.params.feature_selection_threshold
-
-KFOLD = 10
+    KFOLD = snakemake.params.kfold
 
 
 CATBOOST_TRAIN_PARAMS: dict[str:Any] = {
