@@ -5,7 +5,7 @@ NUM_CORES = workflow.cores
 print(GPU_CORES, CPU_CORES, NUM_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
 TRAILS = 1
-FEATURE_SELECTION_THRESHOLD = 0.7
+FEATURE_SELECTION_THRESHOLD = 1.0
 train_files = ["train_features", "train_wide_features"]
 base_data_path = config.get("base_data_path", "data")
 base_script_path = config.get("base_script_path", "kaggle_template/scripts")
