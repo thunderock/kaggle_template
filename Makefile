@@ -4,7 +4,7 @@ CORES ?= all
 DATA_PATH ?= data
 SCRIPT_PATH ?= kaggle_template/scripts
 KFOLD ?= 2
-TRIALS ?= 200
+TRIALS ?= 1
 
 .PHONY: clean_snakemake
 clean_snakemake:

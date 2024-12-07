@@ -133,13 +133,14 @@ rule upload_data_generate_dag:
         shell("snakemake --filegraph | sed '1d' | dot -Tpdf > {output.dag_filegraph}")
         if not os.getenv('KAGGLE_URL_BASE'):
             shell("rm -rf temp; mkdir temp; cp dataset-metadata.json temp/")
-            shell("pip download scikit-learn==1.3.0  pytest-runner Cython wheel snakemake==7.32.4 pulp==2.7.0 kaleido==0.1.0 setuptools==42 tomli -d /tmp/kaggle_packages")
-            shell("zip -r /tmp/kaggle_packages.zip /tmp/kaggle_packages ; mv /tmp/kaggle_packages.zip kaggle_packages.mp4")
-            shell("zip -r temp/kaggle_template.zip Snakefile Makefile kaggle_template kaggle_packages.mp4 submission.csv data/models data/output data/features")
+            # shell("pip download --prefer-binary --dest kaggle_packages --platform any pytest-runner Cython wheel snakemake==7.32.4 pulp==2.7.0 kaleido==0.1.0 setuptools==42 tomli scikit-learn==1.3.0 ") # scikit-learn==1.3.0
+            # shell("pip download  --no-binary=:none: --dest kaggle_packages    --ignore-requires-python --no-cache-dir pytest-runner Cython wheel snakemake==8.25.5 pulp==2.7.0 kaleido==0.1.0 setuptools==42 tomli scikit-learn==1.3.0")
+            # shell("zip -r kaggle_packages.zip kaggle_packages ; mv kaggle_packages.zip kaggle_packages.mp4")
+            shell("zip -r temp/kaggle_template.zip Snakefile Makefile kaggle_template submission.csv data/models data/output data/features")
             timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
             commit_sha = check_output(["git", "rev-parse", "--short", "HEAD"]).decode('utf-8').strip()
             shell("kaggle datasets version  -p temp -m 'Updated at: {timestamp}, git commit: {commit_sha}'")
-            shell("rm -rf temp kaggle_packages.mp4")
+            shell("rm -rf temp")
 
 rule download_data:
     output:
