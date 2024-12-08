@@ -3,7 +3,6 @@ import importlib.util
 import json
 import os
 import sys
-import warnings
 from os.path import abspath, dirname
 
 import numpy as np
@@ -30,9 +29,6 @@ else:
     from kaggle_template.utils.run_utils import get_dframe_with_features_by_threshold
 
 
-warnings.simplefilter("always")
-
-
 def write_dictionary(json_file, dictionary):
     with open(json_file, "w") as file:
         json.dump(dictionary, file, indent=4)
@@ -53,6 +49,10 @@ if "snakemake" in sys.modules:
     SEED = snakemake.params.seed
     THREADS = snakemake.threads
     FEATURE_SELECTION_THRESHOLD = snakemake.params.feature_selection_threshold
+
+print("debugging running tune_meta_model.py: ")
+print("TRAIN_DF: ", TRAIN_DF)
+print("TRIALS: ", TRAILS)
 
 train_df = get_dframe_with_features_by_threshold(
     pd.read_csv(TRAIN_DF), FEATURE_SELECTION_THRESHOLD
@@ -197,5 +197,5 @@ fig = optuna.visualization.plot_parallel_coordinate(study)
 fig.update_layout(width=1200, height=800, title_text="meta_model")
 fig.write_image(parallel_coords_file)
 params = study.best_params
-print("Best params for meta model:", params)
+print("Best params for meta model: ", params)
 write_dictionary(META_MODEL, params)

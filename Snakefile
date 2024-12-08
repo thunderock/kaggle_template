@@ -1,10 +1,11 @@
 from kaggle_template.utils.run_utils import GPU_CORES, CPU_CORES
 from os.path import join as j
 import time
+from subprocess import check_output
 NUM_CORES = workflow.cores
 print(GPU_CORES, CPU_CORES, NUM_CORES)
 COMPETITION = "child-mind-institute-problematic-internet-use"
-TRAILS = 1
+TRIALS = config.get("trials", 1)
 FEATURE_SELECTION_THRESHOLD = 1.0
 train_files = ["train_features", "train_wide_features"]
 base_data_path = config.get("base_data_path", "data")
@@ -74,7 +75,7 @@ rule tune_model:
         output_path=j(base_data_path, "models/{model}_train_features.json"),
         output_wide_path=j(base_data_path, "models/{model}_train_wide_features.json"),
     params:
-        trials=TRAILS,
+        trials=TRIALS,
         seed=42,
         model="{model}",
         feature_selection_threshold=FEATURE_SELECTION_THRESHOLD,
@@ -88,7 +89,7 @@ rule tune_meta_model:
     output:
         meta_model=j(base_data_path, "models/meta_model.json"),
     params:
-        trials=TRAILS,
+        trials=TRIALS,
         seed=42,
         feature_selection_threshold=FEATURE_SELECTION_THRESHOLD,
     threads: NUM_CORES // 2
@@ -132,9 +133,13 @@ rule upload_data_generate_dag:
         shell("snakemake --filegraph | sed '1d' | dot -Tpdf > {output.dag_filegraph}")
         if not os.getenv('KAGGLE_URL_BASE'):
             shell("rm -rf temp; mkdir temp; cp dataset-metadata.json temp/")
-            shell("zip -r temp/kaggle_template.zip Snakefile Makefile kaggle_template kaggle_packages.mp4 submission.csv data/models data/output data/features")
+            # shell("pip download --prefer-binary --dest kaggle_packages --platform any pytest-runner Cython wheel snakemake==7.32.4 pulp==2.7.0 kaleido==0.1.0 setuptools==42 tomli scikit-learn==1.3.0 ") # scikit-learn==1.3.0
+            # shell("pip download  --no-binary=:none: --dest kaggle_packages    --ignore-requires-python --no-cache-dir pytest-runner Cython wheel snakemake==8.25.5 pulp==2.7.0 kaleido==0.1.0 setuptools==42 tomli scikit-learn==1.3.0")
+            # shell("zip -r kaggle_packages.zip kaggle_packages ; mv kaggle_packages.zip kaggle_packages.mp4")
+            shell("zip -r temp/kaggle_template.zip Snakefile Makefile kaggle_template submission.csv data/models data/output data/features")
             timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-            shell("poetry run kaggle datasets version  -p temp -m 'Updated at {timestamp}' -d")
+            commit_sha = check_output(["git", "rev-parse", "--short", "HEAD"]).decode('utf-8').strip()
+            shell("kaggle datasets version  -p temp -m 'Updated at: {timestamp}, git commit: {commit_sha}'")
             shell("rm -rf temp")
 
 rule download_data:

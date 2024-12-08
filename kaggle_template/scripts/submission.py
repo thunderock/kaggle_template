@@ -85,96 +85,96 @@ if "snakemake" in sys.modules:
 
 
 CATBOOST_TRAIN_PARAMS: dict[str:Any] = {
-    "learning_rate": 0.052335599837526434,
-    "depth": 6,
-    "iterations": 352,
-    "l2_leaf_reg": 15,
+    "learning_rate": 0.024406205392632368,
+    "depth": 7,
+    "iterations": 353,
+    "l2_leaf_reg": 9,
     "random_seed": 42,
     "verbose": False,
 }
 CATBOOST_TRAIN_WIDE_PARAMS: dict[str:Any] = {
-    "learning_rate": 0.07739082107142103,
-    "depth": 4,
-    "iterations": 254,
-    "l2_leaf_reg": 10,
+    "learning_rate": 0.0861040863942984,
+    "depth": 5,
+    "iterations": 351,
+    "l2_leaf_reg": 12,
     "random_seed": 42,
     "verbose": False,
 }
 LGBM_TRAIN_PARAMS: dict[str:Any] = {
-    "max_depth": 14,
-    "learning_rate": 0.05266538108576567,
-    "num_leaves": 439,
-    "min_data_in_leaf": 11,
-    "bagging_fraction": 0.5372487838046379,
+    "max_depth": 9,
+    "learning_rate": 0.03812315678367129,
+    "num_leaves": 556,
+    "min_data_in_leaf": 13,
+    "bagging_fraction": 0.9151490208811808,
     "bagging_freq": 1,
-    "lambda_l1": 5.861462412806318,
-    "lambda_l2": 0.07292117586631806,
+    "lambda_l1": 6.982774348590521,
+    "lambda_l2": 0.43537041212402444,
     "random_state": 42,
     "verbosity": -1,
 }
 LGBM_TRAIN_WIDE_PARAMS: dict[str:Any] = {
-    "max_depth": 17,
-    "learning_rate": 0.061251438480778755,
-    "num_leaves": 117,
+    "max_depth": 11,
+    "learning_rate": 0.09338987256880348,
+    "num_leaves": 112,
     "min_data_in_leaf": 14,
-    "bagging_fraction": 0.6245504220583282,
-    "bagging_freq": 5,
-    "lambda_l1": 6.453079863609765,
-    "lambda_l2": 0.012166685442452725,
+    "bagging_fraction": 0.5111287330862752,
+    "bagging_freq": 1,
+    "lambda_l1": 1.973526799018717,
+    "lambda_l2": 0.18652382656386896,
     "random_state": 42,
     "verbosity": -1,
 }
 META_MODEL: dict[str:Any] = {
-    "alpha": 0.8861230517534572,
-    "wide_alpha": 0.09192897203020362,
-    "wide_weight": 0.4221394292247178,
+    "alpha": 0.0020200658864772034,
+    "wide_alpha": 1.4854213146227482,
+    "wide_weight": 0.30119305369854643,
 }
 RF_TRAIN_PARAMS: dict[str:Any] = {
-    "n_estimators": 400,
-    "max_depth": 40,
-    "min_samples_split": 4,
-    "min_samples_leaf": 5,
-    "max_features": 0.8099200178604307,
+    "n_estimators": 35,
+    "max_depth": 33,
+    "min_samples_split": 18,
+    "min_samples_leaf": 12,
+    "max_features": 0.5512287779326159,
     "random_state": 42,
     "bootstrap": True,
 }
 
 RF_TRAIN_WIDE_PARAMS: dict[str:Any] = {
-    "n_estimators": 85,
-    "max_depth": 13,
-    "min_samples_split": 15,
-    "min_samples_leaf": 4,
-    "max_features": 0.8851446675024941,
+    "n_estimators": 109,
+    "max_depth": 30,
+    "min_samples_split": 7,
+    "min_samples_leaf": 3,
+    "max_features": 0.11938340817529991,
     "random_state": 42,
     "bootstrap": True,
 }
 XGB_TRAIN_PARAMS: dict[str:Any] = {
-    "learning_rate": 0.026291134093558096,
-    "max_depth": 5,
-    "n_estimators": 740,
-    "subsample": 0.7116355627180203,
-    "colsample_bytree": 0.635298144423355,
+    "learning_rate": 0.024568709027347778,
+    "max_depth": 10,
+    "n_estimators": 648,
+    "subsample": 0.9482946523737135,
+    "colsample_bytree": 0.671312962292919,
     "gamma": 2,
-    "reg_alpha": 3,
+    "reg_alpha": 4,
     "reg_lambda": 2,
     "random_state": 42,
     "verbosity": 0,
 }
 
 XGB_TRAIN_WIDE_PARAMS: dict[str:Any] = {
-    "learning_rate": 0.07065769767808697,
-    "max_depth": 10,
-    "n_estimators": 563,
-    "subsample": 0.6045349329921547,
-    "colsample_bytree": 0.760205453222906,
-    "gamma": 2,
-    "reg_alpha": 3,
+    "learning_rate": 0.07265536825959555,
+    "max_depth": 5,
+    "n_estimators": 773,
+    "subsample": 0.516017244095539,
+    "colsample_bytree": 0.6038280298674381,
+    "gamma": 1,
+    "reg_alpha": 5,
     "reg_lambda": 1,
     "random_state": 42,
     "verbosity": 0,
 }
 
-print("DEBUG LOGGING: ")
+print("DEBUG LOGGING, submission file: ")
 print("RF_TRAIN_PARAMS: ", read_dictionary(RF_TRAIN_PARAMS))
 print("RF_TRAIN_WIDE_PARAMS: ", read_dictionary(RF_TRAIN_WIDE_PARAMS))
 print("CATBOOST_TRAIN_PARAMS: ", read_dictionary(CATBOOST_TRAIN_PARAMS))
@@ -184,6 +184,7 @@ print("XGB_TRAIN_WIDE_PARAMS: ", read_dictionary(XGB_TRAIN_WIDE_PARAMS))
 print("LGBM_TRAIN_PARAMS: ", read_dictionary(LGBM_TRAIN_PARAMS))
 print("LGBM_TRAIN_WIDE_PARAMS: ", read_dictionary(LGBM_TRAIN_WIDE_PARAMS))
 print("META_MODEL: ", read_dictionary(META_MODEL))
+print("KFOLD: ", KFOLD)
 
 base_models = [
     ("rf", RandomForestRegressor(**read_dictionary(RF_TRAIN_PARAMS))),
